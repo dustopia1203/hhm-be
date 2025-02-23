@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: hhm-be
+  web:
+    resources:
+      add-mappings: false
+  profiles:
+    active: ${ENV:dev}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+  thymeleaf:
+    cache: true
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+      write-date-timestamps-as-nanoseconds: false
+    default-property-inclusion: non_null
+  cache:
+    type: redis
+    redis:
+      time-to-live: 60m
+    custom-cache:
