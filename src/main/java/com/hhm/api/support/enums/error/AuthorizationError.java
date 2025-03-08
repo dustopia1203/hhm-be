@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AuthorizationError implements ResponseError {
-    ACCESS_DENIED(401001, "Access denied"),
-    UNAUTHORIZED(401002, "Unauthorized"),
+    ACCESS_DENIED(403001, "Access denied"),
+    UNSUPPORTED_AUTHENTICATION(403002, "Unsupported authentication"),
     ;
 
     private final int code;
@@ -25,7 +25,7 @@ public enum AuthorizationError implements ResponseError {
 
     @Override
     public int getStatus() {
-        return 401;
+        return 403;
     }
 
     @Override

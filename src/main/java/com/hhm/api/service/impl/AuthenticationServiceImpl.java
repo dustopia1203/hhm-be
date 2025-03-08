@@ -14,6 +14,7 @@ import com.hhm.api.support.enums.ActiveStatus;
 import com.hhm.api.support.enums.error.NotFoundError;
 import com.hhm.api.support.exception.ResponseException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,6 +31,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final RoleRepository roleRepository;
 
     @Override
+    @Cacheable(
+            cacheNames = "user-authority",
+            key = "#id",
+            condition = "#id != null",
+            unless = "#result == null"
+    )
     public UserAuthority getUserAuthority(UUID id) {
         User user = userRepository.findActiveById(id)
                 .orElseThrow(() -> new ResponseException(NotFoundError.USER_NOT_FOUND));
@@ -52,7 +59,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         List<String> privileges = new ArrayList<>();
 
         rolePrivileges.forEach(rolePrivilege -> {
-            String privilege = rolePrivilege.getResourceCode().name().toLowerCase() + ":" + rolePrivilege.getPermission().name().toLowerCase();
+            String privilege = rolePrivilege.getResourceCode().name() + ":" + rolePrivilege.getPermission().name();
 
             privileges.add(privilege);
         });

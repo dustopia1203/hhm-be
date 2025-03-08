@@ -6,8 +6,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AuthenticationError implements ResponseError {
-    INVALID_AUTHENTICATION_TOKEN(401001, "Invalid authentication token"),
-    TOKEN_WAS_REVOKED(401002, "Token was revoked"),
+    UNAUTHORIZED(401001, "Unauthorized"),
+    INVALID_AUTHENTICATION_TOKEN(401002, "Invalid authentication token"),
+    TOKEN_WAS_REVOKED(401003, "Token was revoked"),
     ;
 
     private final int code;

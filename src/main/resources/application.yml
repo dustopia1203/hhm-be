@@ -33,6 +33,10 @@ spring:
       user-otp:
         time-to-live: ${USER_OTP:1m}
 
+springdoc:
+  api-docs:
+    path: ${API_DOCS_PATH:/api-docs}
+
 security:
   authentication:
     jwt:

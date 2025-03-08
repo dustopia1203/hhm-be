@@ -23,6 +23,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class HttpSecurityConfiguration {
     private final String[] PUBLIC_URLS = {
+            "/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
             "/api/account/register",
             "/api/account/account-active",
             "/api/account/authenticate",
