@@ -1,18 +1,18 @@
 # BUILD STAGE
 FROM gradle:7.6.4-jdk17-alpine AS build
 
-WORKDIR ./src
+WORKDIR /app
 
 COPY . .
 
-RUN gradle build --no-daemon
+RUN gradle build --no-daemon -x test
 
 # RUN STAGE
 FROM openjdk:17-alpine
 
 WORKDIR /app
 
-COPY --from=build build/libs/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 
