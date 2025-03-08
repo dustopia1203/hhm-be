@@ -22,3 +22,21 @@ spring:
     redis:
       time-to-live: 60m
     custom-cache:
+      user-authority:
+        time-to-live: ${ACCESS_TOKEN_EXPIRES_IN:60m}
+      invalid-access-token:
+        time-to-live: ${ACCESS_TOKEN_EXPIRES_IN:60m}
+      invalid-refresh-token:
+        time-to-live: ${REFRESH_TOKEN_EXPIRES_IN:1d}
+      invalid-refresh-token-long:
+        time-to-live: ${REFRESH_TOKEN_LONG_EXPIRES_IN:30d}
+      user-otp:
+        time-to-live: ${USER_OTP:1m}
+
+security:
+  authentication:
+    jwt:
+      secret-key: ${SECRET_KEY:4B56EB985E5AC77C2D5457AB78D7D2B6D7ECA569D92560FA716E73E57CD9E1746F67D8CEA9663F1022A4DAE1744125D9EC36FF436F5A911420BB576B4817DA43}
+      access-token-expires-in: ${ACCESS_TOKEN_EXPIRES_IN:60m}
+      refresh-token-expires-in: ${REFRESH_TOKEN_EXPIRES_IN:1d}
+      refresh-token-long-expires-in: ${REFRESH_TOKEN_LONG_EXPIRES_IN:30d}

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            font-family: ui-sans-serif;
+            letter-spacing: 0.4px;
+        }
+
+        .container {
+            background-color: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 36rem;
+            width: 100%;
+            text-align: center;
+        }
+
+        .title {
+            margin-bottom: 30px;
+        }
+
+        .text-start {
+            text-align: start;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        p {
+            margin-top: 12px;
+            font-size: 16px;
+            color: #374151;
+        }
+
+        .mt-4 {
+            margin-top: 16px;
+        }
+
+        .font-semibold {
+            font-weight: 600;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #000;
+            color: #fff !important;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 24px 0;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background-color: #333;
+        }
+
+        .link {
+            color: #1d4ed8;
+            word-break: break-all;
+            text-decoration: underline;
+        }
+
+        .code {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111827;
+            margin: 12px 0;
+        }
+
+        .footer {
+            margin-top: 24px;
+            line-height: 20px;
+            font-size: 14px;
+            color: #6b7280;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 16px;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <h2 class="title">Email Verification</h2>
+
+    <p class="text-start">
+        Hello <span class="font-semibold" th:text="${username}"></span>,
+    </p>
+    <p class="text-start">
+        To complete your registration, you need to verify your email address.
+    </p>
+
+    <div>
+        <a class="btn" th:href="${activationUrl}" > Verify email </a>
+    </div>
+
+    <p class="text-start">Or copy and paste this URL into your browser:</p>
+    <p class="text-start">
+        <a th:href="${activationUrl}" class="link">
+            <span th:text="${activationUrl}"></span>
+        </a>
+    </p>
+
+    <p class="text-start mt-4">
+        Alternatively, you can use this one-time password on the verification
+        page:
+    </p>
+    <p class="code" th:text="${activationCode}"></p>
+
+    <p class="footer">
+        If you don't want to verify your email or didn't request this, just
+        ignore and delete this message. Please don't forward this email to
+        anyone.
+    </p>
+</div>
+</body>
+</html>
