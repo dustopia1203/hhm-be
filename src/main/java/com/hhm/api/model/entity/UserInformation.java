@@ -39,16 +39,16 @@ public class UserInformation extends AuditableEntity {
     @Column(nullable = false)
     private UUID userId;
 
-    @Column(length = ValidateConstraint.LENGTH.NAME_MAX_LENGTH)
+    @Column(length = ValidateConstraint.Length.NAME_MAX_LENGTH)
     private String firstName;
 
-    @Column(length = ValidateConstraint.LENGTH.NAME_MAX_LENGTH)
+    @Column(length = ValidateConstraint.Length.NAME_MAX_LENGTH)
     private String lastName;
 
-    @Column(length = ValidateConstraint.LENGTH.NAME_MAX_LENGTH)
+    @Column(length = ValidateConstraint.Length.NAME_MAX_LENGTH)
     private String middleName;
 
-    @Column(length = ValidateConstraint.LENGTH.PHONE_MAX_LENGTH)
+    @Column(length = ValidateConstraint.Length.PHONE_MAX_LENGTH)
     private String phone;
 
     @Column()
@@ -58,7 +58,7 @@ public class UserInformation extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
-    @Column(length = ValidateConstraint.LENGTH.ADDRESS_MAX_LENGTH)
+    @Column(length = ValidateConstraint.Length.ADDRESS_MAX_LENGTH)
     private String address;
 
     @Column(nullable = false)

@@ -29,10 +29,10 @@ public class Role extends AuditableEntity {
     @Column()
     private UUID id;
 
-    @Column(length = ValidateConstraint.LENGTH.CODE_MAX_LENGTH, unique = true,  nullable = false)
+    @Column(length = ValidateConstraint.Length.CODE_MAX_LENGTH, unique = true,  nullable = false)
     private String code;
 
-    @Column(length = ValidateConstraint.LENGTH.NAME_MAX_LENGTH, nullable = false)
+    @Column(length = ValidateConstraint.Length.NAME_MAX_LENGTH, nullable = false)
     private String name;
 
     @Column()

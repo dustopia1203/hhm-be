@@ -30,10 +30,10 @@ public class User extends AuditableEntity {
     @Column
     private UUID id;
 
-    @Column(length = ValidateConstraint.LENGTH.USERNAME_MAX_LENGTH, unique = true, nullable = false)
+    @Column(length = ValidateConstraint.Length.USERNAME_MAX_LENGTH, unique = true, nullable = false)
     private String username;
 
-    @Column(length = ValidateConstraint.LENGTH.EMAIL_MAX_LENGTH, unique = true,  nullable = false)
+    @Column(length = ValidateConstraint.Length.EMAIL_MAX_LENGTH, unique = true,  nullable = false)
     private String email;
 
     @Column(nullable = false)
