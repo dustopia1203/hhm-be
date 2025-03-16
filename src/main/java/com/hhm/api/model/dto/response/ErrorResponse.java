@@ -3,9 +3,11 @@ package com.hhm.api.model.dto.response;
 import com.hhm.api.support.enums.ResponseStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
+@NoArgsConstructor
 public class ErrorResponse<T> extends Response<T> {
     private String error;
 

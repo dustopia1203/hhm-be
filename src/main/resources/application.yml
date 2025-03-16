@@ -32,6 +32,9 @@ spring:
         time-to-live: ${REFRESH_TOKEN_LONG_EXPIRES_IN:30d}
       user-otp:
         time-to-live: ${USER_OTP:1m}
+  messages:
+    encoding: UTF-8
+    basename: i18n/messages
 
 springdoc:
   api-docs:
