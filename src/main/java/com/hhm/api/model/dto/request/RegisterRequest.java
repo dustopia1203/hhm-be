@@ -10,21 +10,21 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class RegisterRequest extends Request {
-    @NotBlank(message = "Username required")
+    @NotBlank(message = "USERNAME_REQUIRED")
     @Size(
             max = ValidateConstraint.Length.USERNAME_MAX_LENGTH,
             min = ValidateConstraint.Length.USERNAME_MIN_LENGTH,
-            message = "Username length"
+            message = "USERNAME_LENGTH"
     )
-    @Pattern(regexp = ValidateConstraint.Format.USERNAME_PATTERN, message = "Username format")
+    @Pattern(regexp = ValidateConstraint.Format.USERNAME_PATTERN, message = "USERNAME_FORMAT")
     private String username;
 
-    @NotBlank(message = "Email required")
-    @Size(max = ValidateConstraint.Length.EMAIL_MAX_LENGTH, message = "Username length")
-    @Pattern(regexp = ValidateConstraint.Format.EMAIL_PATTERN, message = "EMAIL_WRONG_FORMAT")
+    @NotBlank(message = "EMAIL_REQUIRED")
+    @Size(max = ValidateConstraint.Length.EMAIL_MAX_LENGTH, message = "EMAIL_LENGTH")
+    @Pattern(regexp = ValidateConstraint.Format.EMAIL_PATTERN, message = "EMAIL_FORMAT")
     private String email;
 
-    @NotBlank(message = "Password required")
+    @NotBlank(message = "PASSWORD_REQUIRED")
     @Size(
             min = ValidateConstraint.Length.PASSWORD_MIN_LENGTH,
             max = ValidateConstraint.Length.PASSWORD_MAX_LENGTH,
@@ -32,7 +32,7 @@ public class RegisterRequest extends Request {
     )
     @Pattern(
             regexp = ValidateConstraint.Format.PASSWORD_REGEX,
-            message = "FORMAT_PASSWORD"
+            message = "PASSWORD_FORMAT"
     )
     private String password;
 }
