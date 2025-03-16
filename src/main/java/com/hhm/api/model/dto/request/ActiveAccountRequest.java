@@ -7,8 +7,8 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class ActiveAccountRequest extends Request {
-    @NotBlank(message = "Credential required")
+    @NotBlank(message = "CREDENTIAL_REQUIRED")
     private String credential;
-    @NotBlank(message = "Activation code required")
+    @NotBlank(message = "ACTIVATION_CODE_REQUIRED")
     private String activationCode;
 }

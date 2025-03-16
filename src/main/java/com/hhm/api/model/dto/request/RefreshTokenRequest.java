@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class RefreshTokenRequest extends Request {
-    @NotBlank(message = "Refresh token required")
+    @NotBlank(message = "REFRESH_TOKEN_REQUIRED")
     private String refreshToken;
 
     private Boolean rememberMe;

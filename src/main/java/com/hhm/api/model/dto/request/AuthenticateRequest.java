@@ -10,10 +10,6 @@ import lombok.EqualsAndHashCode;
 @Data
 public class AuthenticateRequest extends Request {
     @NotBlank(message = "CREDENTIAL_REQUIRED")
-    @Size(
-            max = ValidateConstraint.Length.USERNAME_MAX_LENGTH,
-            message = "USERNAME_LENGTH"
-    )
     private String credential;
 
     @NotBlank(message = "PASSWORD_REQUIRED")

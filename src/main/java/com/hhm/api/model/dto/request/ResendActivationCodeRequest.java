@@ -7,6 +7,6 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class ResendActivationCodeRequest extends Request {
-    @NotBlank(message = "Credential required")
+    @NotBlank(message = "CREDENTIAL_REQUIRED")
     private String credential;
 }
