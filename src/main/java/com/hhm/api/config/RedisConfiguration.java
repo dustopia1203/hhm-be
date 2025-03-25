@@ -54,19 +54,19 @@ public class RedisConfiguration {
     private RedisCacheConfiguration handleCustomCacheConfiguration(CacheProperties.Redis cacheProperty, RedisCacheConfiguration cacheConfiguration) {
         if (Objects.nonNull(cacheProperty)) {
             if (Objects.nonNull(cacheProperty.getTimeToLive())) {
-                cacheConfiguration.entryTtl(cacheProperty.getTimeToLive());
+                cacheConfiguration = cacheConfiguration.entryTtl(cacheProperty.getTimeToLive());
             }
 
             if (!Objects.equals(cacheProperty.isCacheNullValues(), Boolean.TRUE)) {
-                cacheConfiguration.disableCachingNullValues();
+                cacheConfiguration = cacheConfiguration.disableCachingNullValues();
             }
 
             if (Objects.nonNull(cacheProperty.getKeyPrefix())) {
-                cacheConfiguration.computePrefixWith(cacheName -> cacheName + ":" + cacheProperty.getKeyPrefix());
+                cacheConfiguration = cacheConfiguration.computePrefixWith(cacheName -> cacheName + "_" + cacheProperty.getKeyPrefix());
             }
 
             if (Objects.equals(cacheProperty.isUseKeyPrefix(), Boolean.TRUE)) {
-                cacheConfiguration.disableKeyPrefix();
+                cacheConfiguration = cacheConfiguration.disableKeyPrefix();
             }
         }
 
