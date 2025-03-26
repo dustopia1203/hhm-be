@@ -65,7 +65,7 @@ public class RedisConfiguration {
                 cacheConfiguration = cacheConfiguration.computePrefixWith(cacheName -> cacheName + "_" + cacheProperty.getKeyPrefix());
             }
 
-            if (Objects.equals(cacheProperty.isUseKeyPrefix(), Boolean.TRUE)) {
+            if (Objects.equals(cacheProperty.isUseKeyPrefix(), Boolean.FALSE)) {
                 cacheConfiguration = cacheConfiguration.disableKeyPrefix();
             }
         }

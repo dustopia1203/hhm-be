@@ -6,6 +6,7 @@ import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
+import com.hhm.api.model.dto.response.ProfileResponse;
 
 import java.util.UUID;
 
@@ -21,4 +22,6 @@ public interface AccountService {
     AuthenticateResponse login(AuthenticateRequest request);
 
     AuthenticateResponse refreshToken(RefreshTokenRequest request);
+
+    ProfileResponse getAccountProfile();
 }

@@ -6,6 +6,7 @@ import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
+import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.presentation.web.rest.AccountController;
 import com.hhm.api.service.AccountService;
@@ -51,5 +52,10 @@ public class AccountControllerImpl implements AccountController {
     @Override
     public Response<AuthenticateResponse> refreshToken(RefreshTokenRequest request) {
         return Response.of(accountService.refreshToken(request));
+    }
+
+    @Override
+    public Response<ProfileResponse> getAccountProfile() {
+        return Response.of(accountService.getAccountProfile());
     }
 }

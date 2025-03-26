@@ -55,6 +55,9 @@ public class UserInformation extends AuditableEntity {
     private Instant dateOfBirth;
 
     @Column()
+    private String avatarUrl;
+
+    @Column()
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
