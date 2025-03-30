@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface RoleRepository extends JpaRepository<Role, UUID> {
-
     @Query("SELECT r FROM Role r WHERE r.deleted = FALSE AND r.code IN :codes")
     List<Role> findAllByCodes(List<String> codes);
 

@@ -7,6 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum NotFoundError implements ResponseError {
     USER_NOT_FOUND(404001, "User not found"),
+    CATEGORY_NOT_FOUND(404002, "Category not found"),
+    SHOP_NOT_FOUND(404003, "Shop not found"),
+    PRODUCT_NOT_FOUND(404004, "Product not found"),
     ;
 
     private final int code;

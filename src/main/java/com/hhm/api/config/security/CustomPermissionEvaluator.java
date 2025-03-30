@@ -6,7 +6,7 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Objects;
 
 public class CustomPermissionEvaluator implements PermissionEvaluator {
 
@@ -23,14 +23,10 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
                         String resourceCode = userPermission.split(":")[0].toUpperCase();
                         String action = userPermission.split(":")[1].toUpperCase();
 
-                        return List
-                                .of(
-                                        resourceCode + ":" + action,
-                                        "ALL:" + action,
-                                        resourceCode + ":MANAGE",
-                                        "ALL:MANAGE"
-                                )
-                                .contains(requiredResourceCode + ":" + requiredAction);
+                        return Objects.equals(resourceCode, requiredResourceCode) && Objects.equals(action, requiredAction)
+                                || Objects.equals(resourceCode, "ALL") && Objects.equals(action, requiredAction)
+                                || Objects.equals(resourceCode, requiredResourceCode) && Objects.equals(action, "MANAGE")
+                                || Objects.equals(resourceCode, "ALL") && Objects.equals(action, "MANAGE");
                     });
         } else {
             throw new ResponseException(AuthorizationError.UNSUPPORTED_AUTHENTICATION);

@@ -8,6 +8,8 @@ import com.hhm.api.support.enums.error.InternalServerError;
 import com.hhm.api.support.enums.error.ResponseError;
 import com.hhm.api.support.exception.ResponseException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -23,6 +26,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -36,8 +40,9 @@ public class CustomExceptionHandleAdvice {
 
     @ExceptionHandler({ResponseException.class})
     public ResponseEntity<ErrorResponse<Object>> handleResponseException(ResponseException e, HttpServletRequest request) {
-        log.warn("Failed to handle request {}: {}", request.getRequestURI(), e.getError().getMessage(), e);
         ResponseError error = e.getError();
+
+        log.warn("Failed to handle request {}: {}", request.getRequestURI(), e.getError().getMessage(), e);
 
         return ResponseEntity
                 .status(error.getStatus())
@@ -66,9 +71,7 @@ public class CustomExceptionHandleAdvice {
     }
 
     @ExceptionHandler({MethodArgumentNotValidException.class})
-    public ResponseEntity<InvalidInputResponse> handleValidationException(MethodArgumentNotValidException e, HttpServletRequest request) {
-        log.warn("Failed to handle request {}: {}", request.getRequestURI(), e.getMessage());
-
+    public ResponseEntity<InvalidInputResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletRequest request) {
         BindingResult bindingResult = e.getBindingResult();
 
         final String DEFAULT_INPUT_INVALID_CODE = "INPUT_INVALID";
@@ -93,6 +96,49 @@ public class CustomExceptionHandleAdvice {
                 })
                 .filter(Objects::nonNull)
                 .toList();
+
+        log.warn("Failed to handle request {}: {}", request.getRequestURI(), e.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(
+                        new InvalidInputResponse(
+                                HttpStatus.BAD_REQUEST.value(),
+                                messageSource.getMessage(DEFAULT_INPUT_INVALID_CODE, null, LocaleContextHolder.getLocale()),
+                                DEFAULT_INPUT_INVALID_CODE,
+                                fieldErrors)
+                );
+    }
+
+    @ExceptionHandler({ConstraintViolationException.class})
+    public ResponseEntity<InvalidInputResponse> handleValidationException(ConstraintViolationException e, HttpServletRequest request) {
+        final String DEFAULT_INPUT_INVALID_CODE = "INPUT_INVALID";
+
+        List<InvalidFieldError> fieldErrors = e.getConstraintViolations().stream()
+                .map(constraintViolation -> {
+                    String propertyPath = constraintViolation.getPropertyPath().toString();
+
+                    log.debug("property path = {}", propertyPath);
+
+                    String propertyName = propertyPath.contains(".") ?
+                            propertyPath.substring(propertyPath.indexOf(".") + 1)
+                            : propertyPath;
+
+                    String objectName = propertyPath.split("\\.").length > 1 ?
+                            propertyPath.substring(propertyPath.indexOf(".") + 1, propertyPath.lastIndexOf("."))
+                            : propertyPath;
+
+                    String errorMessage = messageSource.getMessage(constraintViolation.getMessage(), null, LocaleContextHolder.getLocale());
+
+                    return InvalidFieldError.builder()
+                            .field(propertyName)
+                            .objectName(objectName)
+                            .message(errorMessage)
+                            .build();
+                })
+                .toList();
+
+        log.warn("Failed to handle request {}: {}", request.getRequestURI(), e.getMessage(), e);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

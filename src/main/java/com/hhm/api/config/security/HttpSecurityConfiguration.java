@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,11 +30,21 @@ import java.util.Collections;
 @Slf4j
 @RequiredArgsConstructor
 public class HttpSecurityConfiguration {
-    private final String[] PUBLIC_URLS = {
+    private final String[] DOC_PUBLIC_URLS = {
             "/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
+    };
+
+    private final String[] QUERY_PUBLIC_URLS = {
+            "/api/categories/**",
+            "/api/shops/**",
+            "/api/products/**",
+    };
+
+    private final String[] COMMAND_PUBLIC_URLS = {
             "/api/account/register",
+            "/api/account/resend-code",
             "/api/account/active",
             "/api/account/{id}/active",
             "/api/account/authenticate",
@@ -51,7 +62,9 @@ public class HttpSecurityConfiguration {
                 .authorizeHttpRequests(
                 registry ->
                         registry
-                                .requestMatchers(PUBLIC_URLS).permitAll()
+                                .requestMatchers(DOC_PUBLIC_URLS).permitAll()
+                                .requestMatchers(HttpMethod.GET, QUERY_PUBLIC_URLS).permitAll()
+                                .requestMatchers(COMMAND_PUBLIC_URLS).permitAll()
                                 .anyRequest().authenticated());
 
         http.addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,13 @@ import lombok.experimental.SuperBuilder;
 import java.util.UUID;
 
 @Entity
-@Table(name = "role_privilege")
+@Table(
+        name = "role_privilege",
+        indexes = {
+                @Index(name = "role_privilege_role_id_idx", columnList = "role_id"),
+                @Index(name = "role_privilege_deleted_idx", columnList = "deleted"),
+        }
+)
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
@@ -25,6 +32,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class RolePrivilege extends AuditableEntity {
     @Id
+    @Column()
     private UUID id;
 
     @Column(nullable = false)

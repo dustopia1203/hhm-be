@@ -37,6 +37,8 @@ spring:
     basename: i18n/messages
 
 springdoc:
+  swagger-ui:
+    tags-sorter: alpha
   api-docs:
     path: ${API_DOCS_PATH:/api-docs}
 
