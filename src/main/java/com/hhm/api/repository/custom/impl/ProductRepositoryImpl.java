@@ -37,7 +37,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     public List<Product> search(ProductSearchRequest request) {
         Map<String, Object> values = new HashMap<>();
 
-        String queryString = "SELECT p FROM Product p " + createCriteriaQuery(request, values) + QueryUtils.createOrderQuery(request, "c");
+        String queryString = "SELECT p FROM Product p " + createCriteriaQuery(request, values) + QueryUtils.createOrderQuery(request, "p");
 
         Query query = entityManager.createQuery(queryString, Product.class);
 
@@ -76,7 +76,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         }
 
         if (Objects.nonNull(request.getStatus())) {
-            criteriaQuery.append("AND c.status = :status ");
+            criteriaQuery.append("AND p.status = :status ");
 
             values.put("status", request.getStatus());
         }
