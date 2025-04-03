@@ -62,6 +62,7 @@ public class HttpSecurityConfiguration {
                 .authorizeHttpRequests(
                 registry ->
                         registry
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                                 .requestMatchers(DOC_PUBLIC_URLS).permitAll()
                                 .requestMatchers(HttpMethod.GET, QUERY_PUBLIC_URLS).permitAll()
                                 .requestMatchers(COMMAND_PUBLIC_URLS).permitAll()
@@ -88,9 +89,9 @@ public class HttpSecurityConfiguration {
 
         config.setAllowedHeaders(Collections.singletonList("*"));
         config.setAllowedMethods(Collections.singletonList("*"));
-        config.addAllowedOrigin("*");
+        config.addAllowedOriginPattern("*");
         config.setExposedHeaders(Collections.singletonList("Authorization,Link,X-Total-Count,Content-Disposition"));
-        config.setAllowCredentials(false);
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

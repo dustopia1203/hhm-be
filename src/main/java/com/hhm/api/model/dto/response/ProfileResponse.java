@@ -13,7 +13,6 @@ import java.util.List;
 public class ProfileResponse {
     private String username;
     private List<String> grantedPrivileges;
-    private UserInformation userInformation;
     private String firstName;
     private String lastName;
     private String middleName;
