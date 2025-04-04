@@ -12,10 +12,14 @@ import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
+import com.hhm.api.model.entity.Role;
 import com.hhm.api.model.entity.User;
 import com.hhm.api.model.entity.UserInformation;
+import com.hhm.api.model.entity.UserRole;
+import com.hhm.api.repository.RoleRepository;
 import com.hhm.api.repository.UserInformationRepository;
 import com.hhm.api.repository.UserRepository;
+import com.hhm.api.repository.UserRoleRepository;
 import com.hhm.api.service.AccountService;
 import com.hhm.api.service.AuthenticationService;
 import com.hhm.api.service.CacheService;
@@ -64,6 +68,8 @@ public class AccountServiceImpl implements AccountService {
     private final AuthenticationService authenticationService;
     private final UserInformationRepository userInformationRepository;
     private final AutoMapper autoMapper;
+    private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
 
     @Override
     public void register(RegisterRequest request) {
@@ -88,6 +94,19 @@ public class AccountServiceImpl implements AccountService {
                 .accountType(AccountType.SYSTEM)
                 .deleted(Boolean.FALSE)
                 .build();
+
+        Role memberRole = roleRepository.findByCode(Constants.DefaultRole.MEMBER.name()).orElse(null);
+
+        if (Objects.nonNull(memberRole)) {
+            UserRole userRole = UserRole.builder()
+                    .id(IdUtils.nextId())
+                    .userId(user.getId())
+                    .roleId(memberRole.getId())
+                    .deleted(Boolean.FALSE)
+                    .build();
+
+            userRoleRepository.save(userRole);
+        }
 
         String activationOtp = RandomStringUtils.randomNumeric(6);
 
