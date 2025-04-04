@@ -49,6 +49,5 @@ public interface AccountController {
 
     @Operation(summary = "Get account profile")
     @GetMapping("/profile")
-    @PreAuthorize("hasPermission(null, 'ACCOUNT:SELF_READ')")
     Response<ProfileResponse> getAccountProfile();
 }
