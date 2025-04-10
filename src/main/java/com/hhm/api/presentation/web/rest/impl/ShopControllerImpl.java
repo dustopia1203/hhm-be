@@ -34,7 +34,6 @@ public class ShopControllerImpl implements ShopController {
         return Response.of(shopService.create(request));
     }
 
-    @PreAuthorize("hasPermission(null, 'SHOP:SELF_UPDATE')")
     @Override
     public Response<Shop> update(UUID id, ShopCreateOrUpdateRequest request) {
         return Response.of(shopService.update(id, request));
