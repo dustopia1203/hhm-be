@@ -120,27 +120,34 @@ public class UserServiceImpl implements UserService {
 
         User user1 = user.get();
 
-        Optional<UserInformation> optionalUserInformation = userInformationRepository.findById(user1.getId());
-        if (optionalUserInformation.isEmpty()) {
-            throw new ResponseException(NotFoundError.USER_INFORMATION_NOT_FOUND);
-        }
-
-        UserInformation userInformation = optionalUserInformation.get();
+        UserInformation userInformation = userInformationRepository.findById(user1.getId()).orElse(null);
 
         List<UserRole> userRoles = userRoleRepository.findByUserId(user1.getId());
+
+        if (userInformation != null) {
+            UserDetailResponse userDetailResponse = (UserDetailResponse) UserDetailResponse.builder()
+                    .email(user1.getEmail())
+                    .accountType(user1.getAccountType())
+                    .username(user1.getUsername())
+                    .avatarUrl(userInformation.getAvatarUrl())
+                    .address(userInformation.getAddress())
+                    .dateOfBirth(userInformation.getDateOfBirth())
+                    .firstName(userInformation.getFirstName())
+                    .lastName(userInformation.getLastName())
+                    .middleName(userInformation.getMiddleName())
+                    .gender(userInformation.getGender())
+                    .phone(userInformation.getPhone())
+                    .build();
+
+            userDetailResponse.setUserRoles(userRoles);
+
+            return userDetailResponse;
+        }
 
         UserDetailResponse userDetailResponse = (UserDetailResponse) UserDetailResponse.builder()
                 .email(user1.getEmail())
                 .accountType(user1.getAccountType())
                 .username(user1.getUsername())
-                .avatarUrl(userInformation.getAvatarUrl())
-                .address(userInformation.getAddress())
-                .dateOfBirth(userInformation.getDateOfBirth())
-                .firstName(userInformation.getFirstName())
-                .lastName(userInformation.getLastName())
-                .middleName(userInformation.getMiddleName())
-                .gender(userInformation.getGender())
-                .phone(userInformation.getPhone())
                 .build();
 
         userDetailResponse.setUserRoles(userRoles);
