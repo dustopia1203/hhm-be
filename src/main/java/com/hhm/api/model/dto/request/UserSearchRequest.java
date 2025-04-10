@@ -11,6 +11,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class UserSearchRequest extends PagingRequest {
+    private List<UUID> ids;
     private ActiveStatus status;
     private AccountType accountType;
 }

@@ -9,6 +9,7 @@ import com.hhm.api.model.entity.Shop;
 import com.hhm.api.presentation.web.rest.ShopController;
 import com.hhm.api.service.ShopService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -33,6 +34,7 @@ public class ShopControllerImpl implements ShopController {
         return Response.of(shopService.create(request));
     }
 
+    @PreAuthorize("hasPermission(null, 'SHOP:SELF_UPDATE')")
     @Override
     public Response<Shop> update(UUID id, ShopCreateOrUpdateRequest request) {
         return Response.of(shopService.update(id, request));

@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.UUID;
 
 @Tag(name = "User Resources")
-@RequestMapping("")
+@RequestMapping("/api/users")
 @Validated
 public interface UserController {
     @Operation(summary = "Get user detail by id")
@@ -32,6 +32,7 @@ public interface UserController {
 
     @Operation(summary = "Search user by id")
     @GetMapping("/q")
+    @PreAuthorize("hasPermission(null, 'USER:READ')")
     PagingResponse<User> search(@ValidatePaging(sortModel = User.class) UserSearchRequest request);
 
     @Operation(summary = "Active users")
