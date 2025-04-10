@@ -9,7 +9,6 @@ import com.hhm.api.model.entity.Shop;
 import com.hhm.api.presentation.web.rest.ShopController;
 import com.hhm.api.service.ShopService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;

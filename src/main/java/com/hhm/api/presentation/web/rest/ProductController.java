@@ -1,3 +1,4 @@
+
 package com.hhm.api.presentation.web.rest;
 
 import com.hhm.api.config.application.validator.ValidatePaging;
@@ -41,6 +42,7 @@ public interface ProductController {
 
     @Operation(summary = "Update product")
     @PutMapping("/{id}")
+    @PreAuthorize("hasPermission(null, 'PRODUCT:SELF_UPDATE')")
     Response<Product> update(
             @PathVariable UUID id,
             @Valid @RequestBody ProductCreateOrUpdateRequest request
