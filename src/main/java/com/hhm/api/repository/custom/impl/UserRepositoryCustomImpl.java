@@ -23,7 +23,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     public Long count(UserSearchRequest request) {
         Map<String, Object> values = new HashMap<>();
 
-        String queryString = "SELECT COUNT(u) FROM User u " + createCriteriaQuery(request, values);
+        String queryString = "SELECT COUNT(u) FROM User u " + createCriteriaQuery(request, values)+QueryUtils.createOrderQuery(request,"u");
 
         Query query = entityManager.createQuery(queryString, Long.class);
 
@@ -51,21 +51,18 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
         criteriaQuery.append(" AND u.deleted = FALSE ");
 
         if (!Objects.isNull(request.getKeyword())) {
-
             criteriaQuery.append(" AND u.username LIKE :keyword OR u.email LIKE :keyword OR u.phone LIKE :keyword");
 
             values.put("keyword", QueryUtils.encodeLikeString(request.getKeyword()));
         }
 
         if (Objects.nonNull(request.getStatus())) {
-
             criteriaQuery.append(" AND u.status = :status");
 
             values.put("status", request.getStatus());
         }
 
         if (Objects.nonNull(request.getAccountType())) {
-
             criteriaQuery.append(" AND u.accountType= :accountType");
 
             values.put("accountType", request.getAccountType());

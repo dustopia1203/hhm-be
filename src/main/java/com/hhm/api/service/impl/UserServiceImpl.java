@@ -102,25 +102,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(UUID id) {
         Optional<User> user = userRepository.findById(id);
+
         if (user.isEmpty()) {
             throw new ResponseException(NotFoundError.USER_NOT_FOUND);
         }
+
         return user.get();
     }
 
     @Override
     public UserDetailResponse getUserDetailById(UUID id) {
         Optional<User> user = userRepository.findById(id);
+
         if (user.isEmpty()) {
             throw new ResponseException(NotFoundError.USER_NOT_FOUND);
         }
+
         User user1 = user.get();
+
         Optional<UserInformation> optionalUserInformation = userInformationRepository.findById(user1.getId());
         if (optionalUserInformation.isEmpty()) {
             throw new ResponseException(NotFoundError.USER_INFORMATION_NOT_FOUND);
         }
+
         UserInformation userInformation = optionalUserInformation.get();
+
         List<UserRole> userRoles = userRoleRepository.findByUserId(user1.getId());
+
         UserDetailResponse userDetailResponse = (UserDetailResponse) UserDetailResponse.builder()
                 .email(user1.getEmail())
                 .accountType(user1.getAccountType())
@@ -134,71 +142,91 @@ public class UserServiceImpl implements UserService {
                 .gender(userInformation.getGender())
                 .phone(userInformation.getPhone())
                 .build();
+
         userDetailResponse.setUserRoles(userRoles);
+
         return userDetailResponse;
     }
 
     @Override
     public PageDTO<User> search(UserSearchRequest request) {
         Long count = userRepositoryCustom.count(request);
+
         if (Objects.equals(count, 0L)) {
             return PageDTO.empty(request.getPageIndex(), request.getPageSize());
         }
+
         return PageDTO.of(userRepositoryCustom.search(request), request.getPageIndex(), request.getPageSize(), count);
     }
 
     @Override
     public void active(IdsRequest request) {
         List<User> userList = userRepository.findByIds(request.getIds());
+
         request.getIds().forEach(id -> {
             Optional<User> optionalUser = userList.stream()
                     .filter(user -> Objects.equals(user.getId(), id))
                     .findFirst();
+
             if (optionalUser.isEmpty()) {
                 throw new ResponseException(NotFoundError.USER_NOT_FOUND);
             }
+
             User user = optionalUser.get();
+
             if (Objects.equals(user.getStatus(), ActiveStatus.ACTIVE)) {
                 throw new ResponseException(BadRequestError.USER_WAS_ACTIVATED);
             }
-            user.setStatus(ActiveStatus.ACTIVE);
 
+            user.setStatus(ActiveStatus.ACTIVE);
         });
+
         userRepository.saveAll(userList);
     }
 
     @Override
     public void inactive(IdsRequest request) {
         List<User> userList = userRepository.findByIds(request.getIds());
+
         request.getIds().forEach(id -> {
             Optional<User> user = userList.stream()
                     .filter(user1 -> Objects.equals(user1.getId(), id))
                     .findFirst();
+
             if (user.isEmpty()) {
                 throw new ResponseException(NotFoundError.USER_NOT_FOUND);
             }
+
             User user2 = user.get();
+
             if (Objects.equals(user2.getStatus(), ActiveStatus.INACTIVE)) {
                 throw new ResponseException(BadRequestError.USER_WAS_INACTIVATED);
             }
+
             user2.setStatus(ActiveStatus.INACTIVE);
         });
+
         userRepository.saveAll(userList);
     }
 
     @Override
     public void delete(IdsRequest request) {
         List<User> listUser = userRepository.findByIds(request.getIds());
+
         request.getIds().forEach(id -> {
             Optional<User> optionalUser = listUser.stream()
                     .filter(user -> Objects.equals(user.getId(), id))
                     .findFirst();
+
             if (optionalUser.isEmpty()) {
                 throw new ResponseException(NotFoundError.USER_NOT_FOUND);
             }
+
             User user = optionalUser.get();
+
             user.setDeleted(Boolean.TRUE);
         });
+
         userRepository.saveAll(listUser);
     }
 
