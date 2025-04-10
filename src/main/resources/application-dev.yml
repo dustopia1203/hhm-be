@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8088}
+  port: ${PORT:8080}
 
 spring:
   data:
@@ -11,9 +11,9 @@ spring:
       repositories:
         enabled: false
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/hhmshop?useSSL=false}
-    username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:123456}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/hhmshop}
+    username: ${DB_USERNAME:admin}
+    password: ${DB_PASSWORD:Admin123@}
   mail:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:1025}
@@ -31,7 +31,7 @@ springdoc:
     enabled: ${ENABLE_DOC:true}
 
 app:
-  active-account-url: ${ACTIVE_ACCOUNT_URL:http://localhost:3306/account/active}
+  active-account-url: ${ACTIVE_ACCOUNT_URL:http://localhost:5173/account/active}
 
 logging:
   level:
