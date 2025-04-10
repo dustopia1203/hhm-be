@@ -57,7 +57,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
             values.put("keyword", QueryUtils.encodeLikeString(request.getKeyword()));
         }
         if (!CollectionUtils.isEmpty(request.getIds())) {
-            criteriaQuery.append("AND u.id IN :Ids ");
+            criteriaQuery.append("AND u.id IN :ids ");
 
             values.put("Ids", request.getIds());
         }
