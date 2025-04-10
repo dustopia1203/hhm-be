@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.UUID;
 
-@Tag(name = "ShopResources")
+@Tag(name = "Shop Resources")
 @RequestMapping("/api/shops")
 @Validated
 public interface ShopController {
