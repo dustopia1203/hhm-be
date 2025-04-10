@@ -28,7 +28,4 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("SELECT u FROM User u WHERE u.deleted = FALSE AND u.username IN :usernames")
     List<User> findByUsernames(List<String> usernames);
-
-    @Query("SELECT u FROM User u WHERE u.deleted = FALSE AND u.id IN : ids")
-    List<User> findByIds(List<UUID> ids);
 }
