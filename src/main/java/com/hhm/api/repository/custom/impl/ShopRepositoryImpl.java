@@ -52,7 +52,7 @@ public class ShopRepositoryImpl implements ShopRepositoryCustom {
         criteriaQuery.append("AND s.deleted = FALSE ");
 
         if (Objects.nonNull(request.getKeyword())) {
-            criteriaQuery.append("AND s.name LIKE :keyword OR s.address LIKE :keyword ");
+            criteriaQuery.append("AND (s.name LIKE :keyword OR s.address LIKE :keyword) ");
 
             values.put("keyword", QueryUtils.encodeLikeString(request.getKeyword()));
         }
