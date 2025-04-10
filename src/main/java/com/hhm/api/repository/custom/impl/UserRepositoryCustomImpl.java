@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -55,7 +56,11 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
             values.put("keyword", QueryUtils.encodeLikeString(request.getKeyword()));
         }
+        if (!CollectionUtils.isEmpty(request.getIds())) {
+            criteriaQuery.append("AND u.id IN :Ids ");
 
+            values.put("Ids", request.getIds());
+        }
         if (Objects.nonNull(request.getStatus())) {
             criteriaQuery.append(" AND u.status = :status");
 
