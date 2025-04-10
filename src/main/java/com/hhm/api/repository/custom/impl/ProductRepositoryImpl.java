@@ -51,7 +51,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
         criteriaQuery.append("AND p.deleted = FALSE ");
 
-        if (!Objects.isNull(request.getKeyword())) {
+        if (Objects.nonNull(request.getKeyword())) {
             criteriaQuery.append("AND p.name LIKE :keyword OR p.description LIKE :keyword ");
 
             values.put("keyword", QueryUtils.encodeLikeString(request.getKeyword()));

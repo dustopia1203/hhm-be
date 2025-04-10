@@ -12,7 +12,6 @@ import com.hhm.api.repository.RoleRepository;
 import com.hhm.api.repository.UserInformationRepository;
 import com.hhm.api.repository.UserRepository;
 import com.hhm.api.repository.UserRoleRepository;
-import com.hhm.api.repository.custom.UserRepositoryCustom;
 import com.hhm.api.service.UserService;
 import com.hhm.api.support.constants.Constants;
 import com.hhm.api.support.enums.AccountType;
@@ -40,7 +39,6 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final UserInformationRepository userInformationRepository;
-    private final UserRepositoryCustom userRepositoryCustom;
 
     @Override
     public void init() {
@@ -100,86 +98,63 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(UUID id) {
-        Optional<User> user = userRepository.findById(id);
+    public UserDetailResponse getDetailById(UUID id) {
+        Optional<User> userOptional = userRepository.findById(id);
 
-        if (user.isEmpty()) {
+        if (userOptional.isEmpty()) {
             throw new ResponseException(NotFoundError.USER_NOT_FOUND);
         }
 
-        return user.get();
-    }
+        User user = userOptional.get();
 
-    @Override
-    public UserDetailResponse getUserDetailById(UUID id) {
-        Optional<User> user = userRepository.findById(id);
+        UserInformation userInformation = userInformationRepository.findById(user.getId()).orElse(null);
 
-        if (user.isEmpty()) {
-            throw new ResponseException(NotFoundError.USER_NOT_FOUND);
-        }
+        List<UserRole> userRoles = userRoleRepository.findByUserId(user.getId());
 
-        User user1 = user.get();
-
-        UserInformation userInformation = userInformationRepository.findById(user1.getId()).orElse(null);
-
-        List<UserRole> userRoles = userRoleRepository.findByUserId(user1.getId());
-
-        if (userInformation != null) {
-            UserDetailResponse userDetailResponse = (UserDetailResponse) UserDetailResponse.builder()
-                    .email(user1.getEmail())
-                    .accountType(user1.getAccountType())
-                    .username(user1.getUsername())
-                    .avatarUrl(userInformation.getAvatarUrl())
-                    .address(userInformation.getAddress())
-                    .dateOfBirth(userInformation.getDateOfBirth())
-                    .firstName(userInformation.getFirstName())
-                    .lastName(userInformation.getLastName())
-                    .middleName(userInformation.getMiddleName())
-                    .gender(userInformation.getGender())
-                    .phone(userInformation.getPhone())
-                    .build();
-
-            userDetailResponse.setUserRoles(userRoles);
-
-            return userDetailResponse;
-        }
-
-        UserDetailResponse userDetailResponse = (UserDetailResponse) UserDetailResponse.builder()
-                .email(user1.getEmail())
-                .accountType(user1.getAccountType())
-                .username(user1.getUsername())
+        return UserDetailResponse.builder()
+                .username(user.getUsername())
+                .firstName(Objects.nonNull(userInformation) ? userInformation.getFirstName() : null)
+                .lastName(Objects.nonNull(userInformation) ? userInformation.getLastName() : null)
+                .middleName(Objects.nonNull(userInformation) ? userInformation.getMiddleName() : null)
+                .phone(Objects.nonNull(userInformation) ? userInformation.getPhone() : null)
+                .dateOfBirth(Objects.nonNull(userInformation) ? userInformation.getDateOfBirth() : null)
+                .avatarUrl(Objects.nonNull(userInformation) ? userInformation.getAvatarUrl() : null)
+                .gender(Objects.nonNull(userInformation) ? userInformation.getGender() : null)
+                .address(Objects.nonNull(userInformation) ? userInformation.getAddress() : null)
+                .email(user.getEmail())
+                .status(user.getStatus())
+                .accountType(user.getAccountType())
+                .userRoles(userRoles)
                 .build();
-
-        userDetailResponse.setUserRoles(userRoles);
-
-        return userDetailResponse;
     }
 
     @Override
     public PageDTO<User> search(UserSearchRequest request) {
-        Long count = userRepositoryCustom.count(request);
+        Long count = userRepository.count(request);
 
         if (Objects.equals(count, 0L)) {
             return PageDTO.empty(request.getPageIndex(), request.getPageSize());
         }
 
-        return PageDTO.of(userRepositoryCustom.search(request), request.getPageIndex(), request.getPageSize(), count);
+        List<User> users = userRepository.search(request);
+
+        return PageDTO.of(users, request.getPageIndex(), request.getPageSize(), count);
     }
 
     @Override
     public void active(IdsRequest request) {
-        List<User> userList = userRepository.findByIds(request.getIds());
+        List<User> users = userRepository.findByIds(request.getIds());
 
         request.getIds().forEach(id -> {
-            Optional<User> optionalUser = userList.stream()
+            Optional<User> userOptional = users.stream()
                     .filter(user -> Objects.equals(user.getId(), id))
                     .findFirst();
 
-            if (optionalUser.isEmpty()) {
+            if (userOptional.isEmpty()) {
                 throw new ResponseException(NotFoundError.USER_NOT_FOUND);
             }
 
-            User user = optionalUser.get();
+            User user = userOptional.get();
 
             if (Objects.equals(user.getStatus(), ActiveStatus.ACTIVE)) {
                 throw new ResponseException(BadRequestError.USER_WAS_ACTIVATED);
@@ -188,53 +163,53 @@ public class UserServiceImpl implements UserService {
             user.setStatus(ActiveStatus.ACTIVE);
         });
 
-        userRepository.saveAll(userList);
+        userRepository.saveAll(users);
     }
 
     @Override
     public void inactive(IdsRequest request) {
-        List<User> userList = userRepository.findByIds(request.getIds());
+        List<User> users = userRepository.findByIds(request.getIds());
 
         request.getIds().forEach(id -> {
-            Optional<User> user = userList.stream()
-                    .filter(user1 -> Objects.equals(user1.getId(), id))
+            Optional<User> userOptional = users.stream()
+                    .filter(user -> Objects.equals(user.getId(), id))
                     .findFirst();
 
-            if (user.isEmpty()) {
+            if (userOptional.isEmpty()) {
                 throw new ResponseException(NotFoundError.USER_NOT_FOUND);
             }
 
-            User user2 = user.get();
+            User user = userOptional.get();
 
-            if (Objects.equals(user2.getStatus(), ActiveStatus.INACTIVE)) {
+            if (Objects.equals(user.getStatus(), ActiveStatus.INACTIVE)) {
                 throw new ResponseException(BadRequestError.USER_WAS_INACTIVATED);
             }
 
-            user2.setStatus(ActiveStatus.INACTIVE);
+            user.setStatus(ActiveStatus.INACTIVE);
         });
 
-        userRepository.saveAll(userList);
+        userRepository.saveAll(users);
     }
 
     @Override
     public void delete(IdsRequest request) {
-        List<User> listUser = userRepository.findByIds(request.getIds());
+        List<User> users = userRepository.findByIds(request.getIds());
 
         request.getIds().forEach(id -> {
-            Optional<User> optionalUser = listUser.stream()
+            Optional<User> userOptional = users.stream()
                     .filter(user -> Objects.equals(user.getId(), id))
                     .findFirst();
 
-            if (optionalUser.isEmpty()) {
+            if (userOptional.isEmpty()) {
                 throw new ResponseException(NotFoundError.USER_NOT_FOUND);
             }
 
-            User user = optionalUser.get();
+            User user = userOptional.get();
 
             user.setDeleted(Boolean.TRUE);
         });
 
-        userRepository.saveAll(listUser);
+        userRepository.saveAll(users);
     }
 
 }

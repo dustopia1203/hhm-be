@@ -2,7 +2,6 @@ package com.hhm.api.presentation.web.rest;
 
 import com.hhm.api.config.application.validator.ValidatePaging;
 import com.hhm.api.model.dto.request.IdsRequest;
-import com.hhm.api.model.dto.request.PagingRequest;
 import com.hhm.api.model.dto.request.UserSearchRequest;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
@@ -26,14 +25,15 @@ import java.util.UUID;
 @RequestMapping("/api/users")
 @Validated
 public interface UserController {
-    @Operation(summary = "Get user detail by id")
-    @GetMapping("/{id}")
-    Response<UserDetailResponse> getUserDetailById(@PathVariable @Valid UUID id);
-
     @Operation(summary = "Search user by id")
     @GetMapping("/q")
     @PreAuthorize("hasPermission(null, 'USER:READ')")
     PagingResponse<User> search(@ValidatePaging(sortModel = User.class) UserSearchRequest request);
+
+    @Operation(summary = "Get user detail by id")
+    @GetMapping("/{id}")
+    @PreAuthorize("hasPermission(null, 'USER:READ')")
+    Response<UserDetailResponse> getDetailById(@Valid @PathVariable UUID id);
 
     @Operation(summary = "Active users")
     @PutMapping("/active")

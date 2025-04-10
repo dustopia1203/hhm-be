@@ -10,8 +10,6 @@ public enum NotFoundError implements ResponseError {
     CATEGORY_NOT_FOUND(404002, "Category not found"),
     SHOP_NOT_FOUND(404003, "Shop not found"),
     PRODUCT_NOT_FOUND(404004, "Product not found"),
-    USER_INFORMATION_NOT_FOUND(404005,"User information not found"),
-
     ;
 
     private final int code;

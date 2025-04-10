@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Repository
-public class UserRepositoryCustomImpl implements UserRepositoryCustom {
+public class UserRepositoryImpl implements UserRepositoryCustom {
     @PersistenceContext
     private EntityManager entityManager;
 
@@ -37,7 +37,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     public List<User> search(UserSearchRequest request) {
         Map<String, Object> values = new HashMap<>();
 
-        String queryString = "SELECT u FROM User u" + createCriteriaQuery(request, values) + QueryUtils.createOrderQuery(request,"u");
+        String queryString = "SELECT u FROM User u " + createCriteriaQuery(request, values) + QueryUtils.createOrderQuery(request,"u");
 
         Query query = entityManager.createQuery(queryString, User.class);
 
@@ -47,28 +47,30 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     }
 
     private String createCriteriaQuery(UserSearchRequest request, Map<String, Object> values) {
-        StringBuilder criteriaQuery = new StringBuilder(" WHERE 1=1 ");
+        StringBuilder criteriaQuery = new StringBuilder("WHERE 1 = 1 ");
 
-        criteriaQuery.append(" AND u.deleted = FALSE ");
+        criteriaQuery.append("AND u.deleted = FALSE ");
 
-        if (!Objects.isNull(request.getKeyword())) {
-            criteriaQuery.append(" AND (u.username LIKE :keyword OR u.email LIKE :keyword OR u.phone LIKE :keyword)");
+        if (Objects.nonNull(request.getKeyword())) {
+            criteriaQuery.append("AND (u.username LIKE :keyword OR u.email LIKE :keyword OR u.phone LIKE :keyword) ");
 
             values.put("keyword", QueryUtils.encodeLikeString(request.getKeyword()));
         }
+
         if (!CollectionUtils.isEmpty(request.getIds())) {
             criteriaQuery.append("AND u.id IN :ids ");
 
-            values.put("Ids", request.getIds());
+            values.put("ids", request.getIds());
         }
+
         if (Objects.nonNull(request.getStatus())) {
-            criteriaQuery.append(" AND u.status = :status");
+            criteriaQuery.append("AND u.status = :status ");
 
             values.put("status", request.getStatus());
         }
 
         if (Objects.nonNull(request.getAccountType())) {
-            criteriaQuery.append(" AND u.accountType= :accountType");
+            criteriaQuery.append("AND u.accountType = :accountType ");
 
             values.put("accountType", request.getAccountType());
         }

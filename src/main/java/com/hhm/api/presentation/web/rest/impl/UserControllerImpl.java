@@ -19,8 +19,8 @@ public class UserControllerImpl implements UserController {
     private final UserService userService;
 
     @Override
-    public Response<UserDetailResponse> getUserDetailById(UUID id) {
-        return Response.of(userService.getUserDetailById(id));
+    public Response<UserDetailResponse> getDetailById(UUID id) {
+        return Response.of(userService.getDetailById(id));
     }
 
     @Override
