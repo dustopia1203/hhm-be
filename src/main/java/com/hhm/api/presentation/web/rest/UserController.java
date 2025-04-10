@@ -22,16 +22,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.UUID;
 
-@Tag(name = "UserResources")
+@Tag(name = "User Resources")
 @RequestMapping("")
 @Validated
 public interface UserController {
     @Operation(summary = "Get user detail by id")
     @GetMapping("/{id}")
     Response<UserDetailResponse> getUserDetailById(@PathVariable @Valid UUID id);
+
     @Operation(summary = "Search user by id")
     @GetMapping("/q")
-    PagingResponse<User> search(@ValidatePaging(sortModel = User.class)UserSearchRequest request);
+    PagingResponse<User> search(@ValidatePaging(sortModel = User.class) UserSearchRequest request);
+
     @Operation(summary = "Active users")
     @PutMapping("/active")
     @PreAuthorize("hasPermission(null, 'USER:UPDATE')")

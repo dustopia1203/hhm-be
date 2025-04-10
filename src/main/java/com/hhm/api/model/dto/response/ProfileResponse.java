@@ -1,8 +1,6 @@
 package com.hhm.api.model.dto.response;
 
-import com.hhm.api.model.entity.UserInformation;
 import com.hhm.api.support.enums.Gender;
-import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.SuperBuilder;
 

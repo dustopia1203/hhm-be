@@ -41,6 +41,7 @@ public class UserServiceImpl implements UserService {
     private final UserRoleRepository userRoleRepository;
     private final UserInformationRepository userInformationRepository;
     private final UserRepositoryCustom userRepositoryCustom;
+
     @Override
     public void init() {
         List<String> defaultUsernames = Arrays.stream(Constants.DefaultUser.values())
@@ -101,7 +102,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(UUID id) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isEmpty()){
+        if (user.isEmpty()) {
             throw new ResponseException(NotFoundError.USER_NOT_FOUND);
         }
         return user.get();
@@ -110,21 +111,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetailResponse getUserDetailById(UUID id) {
         Optional<User> user = userRepository.findById(id);
-        if(user.isEmpty()){
+        if (user.isEmpty()) {
             throw new ResponseException(NotFoundError.USER_NOT_FOUND);
         }
         User user1 = user.get();
         Optional<UserInformation> optionalUserInformation = userInformationRepository.findById(user1.getId());
-        if(optionalUserInformation.isEmpty()){
+        if (optionalUserInformation.isEmpty()) {
             throw new ResponseException(NotFoundError.USER_INFORMATION_NOT_FOUND);
         }
         UserInformation userInformation = optionalUserInformation.get();
         List<UserRole> userRoles = userRoleRepository.findByUserId(user1.getId());
-
-        return UserDetailResponse.builder()
+        UserDetailResponse userDetailResponse = (UserDetailResponse) UserDetailResponse.builder()
                 .email(user1.getEmail())
-                .deletedUser(user1.getDeleted())
-                .version(user1.getVersion())
                 .accountType(user1.getAccountType())
                 .username(user1.getUsername())
                 .avatarUrl(userInformation.getAvatarUrl())
@@ -135,72 +133,73 @@ public class UserServiceImpl implements UserService {
                 .middleName(userInformation.getMiddleName())
                 .gender(userInformation.getGender())
                 .phone(userInformation.getPhone())
-                .userRoles(userRoles)
                 .build();
+        userDetailResponse.setUserRoles(userRoles);
+        return userDetailResponse;
     }
 
     @Override
     public PageDTO<User> search(UserSearchRequest request) {
         Long count = userRepositoryCustom.count(request);
-        if(Objects.equals(count,0L)){
-            return PageDTO.empty(request.getPageIndex(),request.getPageSize());
+        if (Objects.equals(count, 0L)) {
+            return PageDTO.empty(request.getPageIndex(), request.getPageSize());
         }
-        return PageDTO.of(userRepositoryCustom.search(request),request.getPageIndex(),request.getPageSize(),count);
+        return PageDTO.of(userRepositoryCustom.search(request), request.getPageIndex(), request.getPageSize(), count);
     }
 
     @Override
     public void active(IdsRequest request) {
         List<User> userList = userRepository.findByIds(request.getIds());
-        request.getIds().forEach(id->{
+        request.getIds().forEach(id -> {
             Optional<User> optionalUser = userList.stream()
-                    .filter(user ->Objects.equals(user.getId(),id))
+                    .filter(user -> Objects.equals(user.getId(), id))
                     .findFirst();
-        if(optionalUser.isEmpty()){
-            throw new ResponseException(NotFoundError.USER_NOT_FOUND);
-        }
-        User user = optionalUser.get();
-        if(Objects.equals(user.getStatus(),ActiveStatus.ACTIVE)){
-            throw new ResponseException(BadRequestError.USER_WAS_ACTIVATED);
-        }
-        user.setStatus(ActiveStatus.ACTIVE);
+            if (optionalUser.isEmpty()) {
+                throw new ResponseException(NotFoundError.USER_NOT_FOUND);
+            }
+            User user = optionalUser.get();
+            if (Objects.equals(user.getStatus(), ActiveStatus.ACTIVE)) {
+                throw new ResponseException(BadRequestError.USER_WAS_ACTIVATED);
+            }
+            user.setStatus(ActiveStatus.ACTIVE);
 
         });
-       userRepository.saveAll(userList);
+        userRepository.saveAll(userList);
     }
 
     @Override
     public void inactive(IdsRequest request) {
-     List<User> userList = userRepository.findByIds(request.getIds());
-     request.getIds().forEach(id->{
-         Optional<User> user = userList.stream()
-                 .filter(user1 -> Objects.equals(user1.getId(),id))
-                 .findFirst();
-         if(user.isEmpty()){
-             throw new ResponseException(NotFoundError.USER_NOT_FOUND);
-         }
-         User user2 = user.get();
-         if(Objects.equals(user2.getStatus(),ActiveStatus.INACTIVE)){
-             throw new ResponseException(BadRequestError.USER_WAS_INACTIVATED);
-         }
-         user2.setStatus(ActiveStatus.INACTIVE);
-     });
-     userRepository.saveAll(userList);
+        List<User> userList = userRepository.findByIds(request.getIds());
+        request.getIds().forEach(id -> {
+            Optional<User> user = userList.stream()
+                    .filter(user1 -> Objects.equals(user1.getId(), id))
+                    .findFirst();
+            if (user.isEmpty()) {
+                throw new ResponseException(NotFoundError.USER_NOT_FOUND);
+            }
+            User user2 = user.get();
+            if (Objects.equals(user2.getStatus(), ActiveStatus.INACTIVE)) {
+                throw new ResponseException(BadRequestError.USER_WAS_INACTIVATED);
+            }
+            user2.setStatus(ActiveStatus.INACTIVE);
+        });
+        userRepository.saveAll(userList);
     }
 
     @Override
     public void delete(IdsRequest request) {
-         List<User> listUser = userRepository.findByIds(request.getIds());
-         request.getIds().forEach(id->{
-             Optional<User> optionalUser = listUser.stream()
-                     .filter(user -> Objects.equals(user.getId(),id))
-                     .findFirst();
-             if(optionalUser.isEmpty()){
-                 throw new ResponseException(NotFoundError.USER_NOT_FOUND);
-             }
-             User user = optionalUser.get();
-             user.setDeleted(Boolean.TRUE);
-         });
-         userRepository.saveAll(listUser);
+        List<User> listUser = userRepository.findByIds(request.getIds());
+        request.getIds().forEach(id -> {
+            Optional<User> optionalUser = listUser.stream()
+                    .filter(user -> Objects.equals(user.getId(), id))
+                    .findFirst();
+            if (optionalUser.isEmpty()) {
+                throw new ResponseException(NotFoundError.USER_NOT_FOUND);
+            }
+            User user = optionalUser.get();
+            user.setDeleted(Boolean.TRUE);
+        });
+        userRepository.saveAll(listUser);
     }
 
 }

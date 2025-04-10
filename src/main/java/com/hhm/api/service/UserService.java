@@ -13,10 +13,16 @@ import java.util.UUID;
 
 public interface UserService {
     void init();
-    User getUserById( UUID id);
+
+    User getUserById(UUID id);
+
     UserDetailResponse getUserDetailById(UUID id);
+
     PageDTO<User> search(UserSearchRequest request);
+
     void active(IdsRequest request);
+
     void inactive(IdsRequest request);
+
     void delete(IdsRequest request);
 }
