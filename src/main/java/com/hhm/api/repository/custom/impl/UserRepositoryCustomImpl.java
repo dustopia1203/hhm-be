@@ -23,7 +23,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     public Long count(UserSearchRequest request) {
         Map<String, Object> values = new HashMap<>();
 
-        String queryString = "SELECT COUNT(u) FROM User u " + createCriteriaQuery(request, values)+QueryUtils.createOrderQuery(request,"u");
+        String queryString = "SELECT COUNT(u) FROM User u " + createCriteriaQuery(request, values);
 
         Query query = entityManager.createQuery(queryString, Long.class);
 
@@ -36,7 +36,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
     public List<User> search(UserSearchRequest request) {
         Map<String, Object> values = new HashMap<>();
 
-        String queryString = "SELECT u FROM User u" + createCriteriaQuery(request, values);
+        String queryString = "SELECT u FROM User u" + createCriteriaQuery(request, values) + QueryUtils.createOrderQuery(request,"u");
 
         Query query = entityManager.createQuery(queryString, User.class);
 
