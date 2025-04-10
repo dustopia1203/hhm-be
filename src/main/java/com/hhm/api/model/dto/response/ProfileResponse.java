@@ -4,12 +4,13 @@ import com.hhm.api.model.entity.UserInformation;
 import com.hhm.api.support.enums.Gender;
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Instant;
 import java.util.List;
 
 @Data
-@Builder
+@SuperBuilder
 public class ProfileResponse {
     private String username;
     private List<String> grantedPrivileges;
