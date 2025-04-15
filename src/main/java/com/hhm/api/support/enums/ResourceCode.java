@@ -6,5 +6,6 @@ public enum ResourceCode {
     CATEGORY,
     SHOP,
     PRODUCT,
+    USER,
     ;
 }
