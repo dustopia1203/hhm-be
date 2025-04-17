@@ -27,7 +27,7 @@ public interface CartItemController {
     Response<Boolean> addItemToMyCart(@Valid @RequestBody CartItemRequest request);
 
     @Operation(summary = "Get Item To Cart")
-    @GetMapping("")
+    @GetMapping("/{cartId}")
     Response<List<CartItemResponse>> getMyCart(@PathVariable UUID cartId);
 
     @Operation(summary = "Delete Item From Cart")
