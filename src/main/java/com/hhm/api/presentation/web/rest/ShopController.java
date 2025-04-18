@@ -6,6 +6,7 @@ import com.hhm.api.model.dto.request.ShopCreateOrUpdateRequest;
 import com.hhm.api.model.dto.request.ShopSearchRequest;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
+import com.hhm.api.model.dto.response.ShopDetailResponse;
 import com.hhm.api.model.entity.Shop;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,20 +33,21 @@ public interface ShopController {
 
     @Operation(summary = "Get shop by id")
     @GetMapping("/{id}")
-    Response<Shop> getById(@PathVariable UUID id);
+    Response<ShopDetailResponse> getById(@PathVariable UUID id);
 
-    @Operation(summary = "Create new shop")
+    @Operation(summary = "Get my shop")
+    @GetMapping("/my")
+    Response<ShopDetailResponse> getMy();
+
+    @Operation(summary = "Create my shop")
     @PostMapping("")
     @PreAuthorize("hasPermission(null, 'SHOP:SELF_CREATE')")
-    Response<Shop> create(@Valid @RequestBody ShopCreateOrUpdateRequest request);
+    Response<Shop> createMy(@Valid @RequestBody ShopCreateOrUpdateRequest request);
 
-    @Operation(summary = "Update shop")
-    @PutMapping("/{id}")
+    @Operation(summary = "Update my shop")
+    @PutMapping("")
     @PreAuthorize("hasPermission(null, 'SHOP:SELF_UPDATE')")
-    Response<Shop> update(
-            @PathVariable UUID id,
-            @Valid @RequestBody ShopCreateOrUpdateRequest request
-    );
+    Response<Shop> updateMy(@Valid @RequestBody ShopCreateOrUpdateRequest request);
 
     @Operation(summary = "Active shops")
     @PutMapping("/active")

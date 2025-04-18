@@ -15,6 +15,9 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, Product
     @NonNull
     Optional<Product> findById(@NonNull UUID id);
 
+    @Query("SELECT COUNT(p) FROM Product p WHERE p.deleted = FALSE AND p.shopId = :shopId")
+    Long countByShop(UUID shopId);
+
     @Query("SELECT p FROM Product p WHERE p.deleted = FALSE AND p.id in :ids")
     List<Product> findByIds(List<UUID> ids);
 }
