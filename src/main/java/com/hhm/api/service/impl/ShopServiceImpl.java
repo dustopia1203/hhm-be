@@ -1,10 +1,15 @@
 package com.hhm.api.service.impl;
 
 import com.hhm.api.model.dto.PageDTO;
+import com.hhm.api.model.dto.mapper.AutoMapper;
 import com.hhm.api.model.dto.request.IdsRequest;
 import com.hhm.api.model.dto.request.ShopCreateOrUpdateRequest;
 import com.hhm.api.model.dto.request.ShopSearchRequest;
+import com.hhm.api.model.dto.response.ShopDetailResponse;
 import com.hhm.api.model.entity.Shop;
+import com.hhm.api.model.entity.projection.ReviewStat;
+import com.hhm.api.repository.ProductRepository;
+import com.hhm.api.repository.ReviewRepository;
 import com.hhm.api.repository.ShopRepository;
 import com.hhm.api.service.ShopService;
 import com.hhm.api.support.enums.ActiveStatus;
@@ -25,7 +30,10 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ShopServiceImpl implements ShopService {
+    private final AutoMapper autoMapper;
     private final ShopRepository shopRepository;
+    private final ProductRepository productRepository;
+    private final ReviewRepository reviewRepository;
 
     @Override
     public PageDTO<Shop> search(ShopSearchRequest request) {
@@ -41,19 +49,42 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
-    public Shop getById(UUID id) {
+    public ShopDetailResponse getById(UUID id) {
         Optional<Shop> shopOptional = shopRepository.findById(id);
 
         if (shopOptional.isEmpty()) {
             throw new ResponseException(NotFoundError.SHOP_NOT_FOUND);
         }
 
-        return shopOptional.get();
+        Shop shop = shopOptional.get();
+
+        return getShopDetailResponse(shop);
     }
 
     @Override
-    public Shop create(ShopCreateOrUpdateRequest request) {
+    public ShopDetailResponse getMy() {
         UUID userId = SecurityUtils.getCurrentUserId();
+
+        Optional<Shop> shopOptional = shopRepository.findByUser(userId);
+
+        if (shopOptional.isEmpty()) {
+            throw new ResponseException(NotFoundError.SHOP_NOT_FOUND);
+        }
+
+        Shop shop = shopOptional.get();
+
+        return getShopDetailResponse(shop);
+    }
+
+    @Override
+    public Shop createMy(ShopCreateOrUpdateRequest request) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+
+        Optional<Shop> shopOptional = shopRepository.findByUser(userId);
+
+        if (shopOptional.isPresent()) {
+            throw new ResponseException(BadRequestError.USER_ALREADY_HAS_SHOP);
+        }
 
         Shop shop = Shop.builder()
                 .id(IdUtils.nextId())
@@ -71,20 +102,16 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
-    public Shop update(UUID id, ShopCreateOrUpdateRequest request) {
+    public Shop updateMy(ShopCreateOrUpdateRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
 
-        Optional<Shop> shopOptional = shopRepository.findById(id);
+        Optional<Shop> shopOptional = shopRepository.findByUser(userId);
 
         if (shopOptional.isEmpty()) {
             throw new ResponseException(NotFoundError.SHOP_NOT_FOUND);
         }
 
         Shop shop = shopOptional.get();
-
-        if (!Objects.equals(userId, shop.getUserId())) {
-            throw new ResponseException(AuthorizationError.ACCESS_DENIED);
-        }
 
         shop.setName(request.getName());
         shop.setAddress(request.getAddress());
@@ -164,5 +191,19 @@ public class ShopServiceImpl implements ShopService {
         });
 
         shopRepository.saveAll(shops);
+    }
+
+    private ShopDetailResponse getShopDetailResponse(Shop shop) {
+        ShopDetailResponse response = autoMapper.toResponse(shop);
+
+        Long productCount = productRepository.countByShop(shop.getId());
+
+        ReviewStat reviewCount = reviewRepository.findStatByShop(shop.getId());
+
+        response.setProductCount(productCount);
+        response.setReviewCount(Objects.nonNull(reviewCount.getReviewCount()) ? reviewCount.getReviewCount() : 0L);
+        response.setRating(Objects.nonNull(reviewCount.getAvgRating()) ? reviewCount.getAvgRating() : 0);
+
+        return response;
     }
 }

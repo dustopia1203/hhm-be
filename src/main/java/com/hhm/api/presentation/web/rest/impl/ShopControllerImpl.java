@@ -5,6 +5,7 @@ import com.hhm.api.model.dto.request.ShopCreateOrUpdateRequest;
 import com.hhm.api.model.dto.request.ShopSearchRequest;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
+import com.hhm.api.model.dto.response.ShopDetailResponse;
 import com.hhm.api.model.entity.Shop;
 import com.hhm.api.presentation.web.rest.ShopController;
 import com.hhm.api.service.ShopService;
@@ -24,18 +25,23 @@ public class ShopControllerImpl implements ShopController {
     }
 
     @Override
-    public Response<Shop> getById(UUID id) {
+    public Response<ShopDetailResponse> getById(UUID id) {
         return Response.of(shopService.getById(id));
     }
 
     @Override
-    public Response<Shop> create(ShopCreateOrUpdateRequest request) {
-        return Response.of(shopService.create(request));
+    public Response<ShopDetailResponse> getMy() {
+        return Response.of(shopService.getMy());
     }
 
     @Override
-    public Response<Shop> update(UUID id, ShopCreateOrUpdateRequest request) {
-        return Response.of(shopService.update(id, request));
+    public Response<Shop> createMy(ShopCreateOrUpdateRequest request) {
+        return Response.of(shopService.createMy(request));
+    }
+
+    @Override
+    public Response<Shop> updateMy(ShopCreateOrUpdateRequest request) {
+        return Response.of(shopService.updateMy(request));
     }
 
     @Override

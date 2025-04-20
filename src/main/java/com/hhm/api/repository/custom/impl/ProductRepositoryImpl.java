@@ -51,8 +51,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
         criteriaQuery.append("AND p.deleted = FALSE ");
 
-        if (!Objects.isNull(request.getKeyword())) {
-            criteriaQuery.append("AND p.name LIKE :keyword OR p.description LIKE :keyword ");
+        if (Objects.nonNull(request.getKeyword())) {
+            criteriaQuery.append("AND (p.name LIKE :keyword OR p.description LIKE :keyword) ");
 
             values.put("keyword", QueryUtils.encodeLikeString(request.getKeyword()));
         }
@@ -70,7 +70,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         }
 
         if (!CollectionUtils.isEmpty(request.getCategoryIds())) {
-            criteriaQuery.append("AND p.categoryId IN :categoryIds ");
+            criteriaQuery.append("AND (p.categoryId IN :categoryIds OR p.categoryId IN (SELECT c.id FROM Category c WHERE c.parentId IN :categoryIds)) ");
 
             values.put("categoryIds", request.getCategoryIds());
         }

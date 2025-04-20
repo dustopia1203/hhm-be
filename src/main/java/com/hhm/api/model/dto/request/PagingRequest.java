@@ -19,8 +19,6 @@ public class PagingRequest extends Request {
     @Max(value = 200, message = "PAGE_SIZE_MAX")
     protected int pageSize = 10;
 
-    protected long total;
-
     protected String sortBy;
 
     protected SortOrder sortOrder;
