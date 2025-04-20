@@ -51,7 +51,7 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 
         criteriaQuery.append("AND c.deleted = FALSE ");
 
-        if (!Objects.isNull(request.getKeyword())) {
+        if (Objects.nonNull(request.getKeyword())) {
             criteriaQuery.append("AND c.name LIKE :keyword ");
 
             values.put("keyword", QueryUtils.encodeLikeString(request.getKeyword()));

@@ -20,6 +20,8 @@ import java.util.UUID;
         name = "review",
         indexes = {
                 @Index(name = "review_user_id_idx", columnList = "user_id"),
+                @Index(name = "review_shop_id_idx", columnList = "shop_id"),
+                @Index(name = "review_order_item_id_idx", columnList = "order_item_id"),
                 @Index(name = "review_product_id_idx", columnList = "product_id"),
                 @Index(name = "review_deleted_idx", columnList = "deleted"),
         }
@@ -36,6 +38,12 @@ public class Review extends AuditableEntity{
 
     @Column(nullable = false)
     private UUID userId;
+
+    @Column(nullable = false)
+    private UUID shopId;
+
+    @Column(nullable = false)
+    private UUID orderItemId;
 
     @Column(nullable = false)
     private UUID productId;

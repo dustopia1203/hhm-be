@@ -18,7 +18,7 @@ public enum BadRequestError implements ResponseError {
     SHOP_WAS_INACTIVATED(400010, "Shop was inactivated"),
     PRODUCT_WAS_ACTIVATED(400011, "Product was activated"),
     PRODUCT_WAS_INACTIVATED(400012, "Product was inactivated"),
-    ;
+    USER_ALREADY_HAS_SHOP(400013, "User already has shop");
 
     private final int code;
     private final String message;

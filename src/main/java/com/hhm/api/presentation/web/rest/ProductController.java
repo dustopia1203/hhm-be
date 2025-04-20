@@ -1,4 +1,3 @@
-
 package com.hhm.api.presentation.web.rest;
 
 import com.hhm.api.config.application.validator.ValidatePaging;

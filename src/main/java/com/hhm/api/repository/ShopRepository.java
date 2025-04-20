@@ -15,6 +15,9 @@ public interface ShopRepository extends JpaRepository<Shop, UUID>, ShopRepositor
     @NonNull
     Optional<Shop> findById(@NonNull UUID id);
 
+    @Query("SELECT s FROM Shop s WHERE s.deleted = FALSE AND s.userId = :userId")
+    Optional<Shop> findByUser(UUID userId);
+
     @Query("SELECT s FROM Shop s WHERE s.deleted = FALSE and s.status = 'ACTIVE' AND s.id = :id")
     Optional<Shop> findActiveById(UUID id);
 
