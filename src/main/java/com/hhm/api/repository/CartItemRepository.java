@@ -13,8 +13,8 @@ public interface CartItemRepository extends JpaRepository<CartItem, UUID> {
     @Query("SELECT ci FROM CartItem ci WHERE ci.deleted = FALSE AND ci.productId = :productId")
     Optional<CartItem> findByProduct(UUID productId);
 
-    @Query("SELECT ci FROM CartItem ci WHERE ci.deleted = FALSE AND ci.cartId = :cartId")
-    List<CartItem> findByCartId(UUID cartId);
+    @Query("SELECT ci FROM CartItem ci WHERE ci.deleted = FALSE AND ci.Id = :Id")
+    Optional<CartItem> findById(UUID Id);
 
     @Query("SELECT ci FROM CartItem ci WHERE ci.deleted = FALSE AND ci.id in :ids")
     List<CartItem> findByIds(List<UUID> ids);

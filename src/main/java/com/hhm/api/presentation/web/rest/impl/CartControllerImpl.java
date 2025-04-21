@@ -1,6 +1,6 @@
 package com.hhm.api.presentation.web.rest.impl;
 
-import com.hhm.api.model.dto.request.CartItemRequest;
+import com.hhm.api.model.dto.request.AddCartRequest;
 import com.hhm.api.model.dto.request.IdsRequest;
 import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.model.entity.CartItem;
@@ -18,13 +18,13 @@ public class CartControllerImpl implements CartController {
     private final CartService cartService;
 
     @Override
-    public Response<Boolean> addItemToMyCart(CartItemRequest request) {
+    public Response<Boolean> addItemToMyCart(AddCartRequest request) {
         cartService.addItemsToMyCart(request);
         return Response.ok();
     }
 
     @Override
-    public Response<List<CartItem>> getMyCart(UUID cartId) {
+    public Response<CartItem> getMyCart(UUID cartId) {
         return Response.of(cartService.getMyCart(cartId));
     }
 

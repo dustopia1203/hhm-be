@@ -11,6 +11,7 @@ public interface ValidateConstraint {
         public static final int ADDRESS_MAX_LENGTH = 200;
         public static final int PASSWORD_MIN_LENGTH = 6;
         public static final int PASSWORD_MAX_LENGTH = 50;
+        public static final int PRODUCT_AMOUNT_MIN_LENGTH=1;
     }
 
     public static final class Format {

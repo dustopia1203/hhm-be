@@ -1,6 +1,6 @@
 package com.hhm.api.service.impl;
 
-import com.hhm.api.model.dto.request.CartItemRequest;
+import com.hhm.api.model.dto.request.AddCartRequest;
 import com.hhm.api.model.dto.request.IdsRequest;
 import com.hhm.api.model.entity.CartItem;
 import com.hhm.api.repository.CartItemRepository;
@@ -21,7 +21,7 @@ public class CartServiceImpl implements CartService {
     private final CartItemRepository cartItemRepository;
 
     @Override
-    public void addItemsToMyCart(CartItemRequest request) {
+    public void addItemsToMyCart(AddCartRequest request) {
         Optional<CartItem> cartItemOptional = cartItemRepository.findByProduct(request.getProductId());
 
         if (cartItemOptional.isEmpty()) {
@@ -65,7 +65,10 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public List<CartItem> getMyCart(UUID cartId) {
-        return cartItemRepository.findByCartId(cartId);
+    public CartItem getMyCart(UUID Id) {
+
+        return cartItemRepository.findById(Id).orElseThrow(
+                () -> new ResponseException(NotFoundError.CART_ITEM_NOT_FOUND)
+        );
     }
 }

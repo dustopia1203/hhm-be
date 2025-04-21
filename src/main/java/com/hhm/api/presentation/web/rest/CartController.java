@@ -1,6 +1,6 @@
 package com.hhm.api.presentation.web.rest;
 
-import com.hhm.api.model.dto.request.CartItemRequest;
+import com.hhm.api.model.dto.request.AddCartRequest;
 import com.hhm.api.model.dto.request.IdsRequest;
 import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.model.entity.CartItem;
@@ -24,11 +24,11 @@ import java.util.UUID;
 public interface CartController {
     @Operation(summary = "Add Item to My Cart")
     @PostMapping("")
-    Response<Boolean> addItemToMyCart(@Valid @RequestBody CartItemRequest request);
+    Response<Boolean> addItemToMyCart(@Valid @RequestBody AddCartRequest request);
 
     @Operation(summary = "Get Item To Cart")
     @GetMapping("/{cartId}")
-    Response<List<CartItem>> getMyCart(@PathVariable UUID cartId);
+    Response<CartItem> getMyCart(@PathVariable UUID cartId);
 
     @Operation(summary = "Delete Item From Cart")
     @DeleteMapping("")
