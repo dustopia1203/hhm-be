@@ -15,8 +15,8 @@ public class AddCartRequest extends Request  {
     private UUID productId;
 
     @Size(
-            min = ValidateConstraint.Length.PRODUCT_AMOUNT_MIN_LENGTH,
-            message = "PRODUCT_AMOUNT_REQUIRED"
+            min = 1,
+            message = "PRODUCT_AMOUNT_MIN"
     )
     private Integer amount;
 }

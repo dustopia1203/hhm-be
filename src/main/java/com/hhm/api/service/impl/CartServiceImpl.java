@@ -7,6 +7,7 @@ import com.hhm.api.repository.CartItemRepository;
 import com.hhm.api.service.CartService;
 import com.hhm.api.support.enums.error.NotFoundError;
 import com.hhm.api.support.exception.ResponseException;
+import com.hhm.api.support.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +22,7 @@ public class CartServiceImpl implements CartService {
     private final CartItemRepository cartItemRepository;
 
     @Override
-    public void addItemsToMyCart(AddCartRequest request) {
+    public void addToMyCart(AddCartRequest request) {
         Optional<CartItem> cartItemOptional = cartItemRepository.findByProduct(request.getProductId());
 
         if (cartItemOptional.isEmpty()) {
@@ -44,7 +45,14 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void deleteItemsFromMyCart(IdsRequest request) {
+    public List<CartItem> getMyCart() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+        return cartItemRepository.findByUser(currentUserId);
+    }
+
+    @Override
+    public void deleteFromMyCart(IdsRequest request) {
         List<CartItem> cartItems = cartItemRepository.findByIds(request.getIds());
 
         request.getIds().forEach(id -> {
@@ -62,13 +70,5 @@ public class CartServiceImpl implements CartService {
         });
 
         cartItemRepository.saveAll(cartItems);
-    }
-
-    @Override
-    public CartItem getMyCart(UUID Id) {
-
-        return cartItemRepository.findById(Id).orElseThrow(
-                () -> new ResponseException(NotFoundError.CART_ITEM_NOT_FOUND)
-        );
     }
 }
