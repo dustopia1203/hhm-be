@@ -30,30 +30,30 @@ public class ProductControllerImpl implements ProductController {
     }
 
     @Override
-    public Response<Product> create(ProductCreateOrUpdateRequest request) {
-        return Response.of(productService.create(request));
+    public Response<Product> createMyShop(ProductCreateOrUpdateRequest request) {
+        return Response.of(productService.createMyShop(request));
     }
 
     @Override
-    public Response<Product> update(UUID id, ProductCreateOrUpdateRequest request) {
-        return Response.of(productService.update(id, request));
+    public Response<Product> updateMyShop(UUID id, ProductCreateOrUpdateRequest request) {
+        return Response.of(productService.updateMyShop(id, request));
     }
 
     @Override
-    public Response<Boolean> active(IdsRequest request) {
-        productService.active(request);
+    public Response<Boolean> activeMyShop(IdsRequest request) {
+        productService.activeMyShop(request);
         return Response.ok();
     }
 
     @Override
-    public Response<Boolean> inactive(IdsRequest request) {
-        productService.inactive(request);
+    public Response<Boolean> inactiveMyShop(IdsRequest request) {
+        productService.inactiveMyShop(request);
         return Response.ok();
     }
 
     @Override
-    public Response<Boolean> delete(IdsRequest request) {
-        productService.delete(request);
+    public Response<Boolean> deleteMyShop(IdsRequest request) {
+        productService.deleteMyShop(request);
         return Response.ok();
     }
 }

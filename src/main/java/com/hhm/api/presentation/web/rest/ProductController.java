@@ -11,7 +11,6 @@ import com.hhm.api.model.entity.Product;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,31 +34,26 @@ public interface ProductController {
     @GetMapping("/{id}")
     Response<ProductResponse> getById(@PathVariable UUID id);
 
-    @Operation(summary = "Create new product")
-    @PostMapping("")
-    @PreAuthorize("hasPermission(null, 'PRODUCT:SELF_CREATE')")
-    Response<Product> create(@Valid @RequestBody ProductCreateOrUpdateRequest request);
+    @Operation(summary = "Create my shop product")
+    @PostMapping("/my/shop")
+    Response<Product> createMyShop(@Valid @RequestBody ProductCreateOrUpdateRequest request);
 
-    @Operation(summary = "Update product")
-    @PutMapping("/{id}")
-    @PreAuthorize("hasPermission(null, 'PRODUCT:SELF_UPDATE')")
-    Response<Product> update(
+    @Operation(summary = "Update my shop product")
+    @PutMapping("/my/shop/{id}")
+    Response<Product> updateMyShop(
             @PathVariable UUID id,
             @Valid @RequestBody ProductCreateOrUpdateRequest request
     );
 
-    @Operation(summary = "Active products")
-    @PutMapping("/active")
-    @PreAuthorize("hasPermission(null, 'PRODUCT:UPDATE')")
-    Response<Boolean> active(@RequestBody IdsRequest request);
+    @Operation(summary = "Active my shop products")
+    @PutMapping("/my/shop/active")
+    Response<Boolean> activeMyShop(@RequestBody IdsRequest request);
 
-    @Operation(summary = "Inactive products")
-    @PutMapping("/inactive")
-    @PreAuthorize("hasPermission(null, 'PRODUCT:UPDATE')")
-    Response<Boolean> inactive(@RequestBody IdsRequest request);
+    @Operation(summary = "Inactive my shop products")
+    @PutMapping("/my/shop/inactive")
+    Response<Boolean> inactiveMyShop(@RequestBody IdsRequest request);
 
-    @Operation(summary = "Delete products")
-    @DeleteMapping("")
-    @PreAuthorize("hasPermission(null, 'PRODUCT:DELETE')")
-    Response<Boolean> delete(@RequestBody IdsRequest request);
+    @Operation(summary = "Delete my shop products")
+    @DeleteMapping("/my/shop")
+    Response<Boolean> deleteMyShop(@RequestBody IdsRequest request);
 }

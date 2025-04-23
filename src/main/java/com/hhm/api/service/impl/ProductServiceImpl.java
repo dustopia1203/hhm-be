@@ -100,7 +100,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product create(ProductCreateOrUpdateRequest request) {
+    public Product createMyShop(ProductCreateOrUpdateRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
 
         validateMyShopAndCategory(userId, request);
@@ -124,7 +124,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product update(UUID id, ProductCreateOrUpdateRequest request) {
+    public Product updateMyShop(UUID id, ProductCreateOrUpdateRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
 
         Optional<Product> productOptional = productRepository.findById(id);
@@ -171,7 +171,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void active(IdsRequest request) {
+    public void activeMyShop(IdsRequest request) {
         List<Product> products = productRepository.findByIds(request.getIds());
 
         request.getIds().forEach(id -> {
@@ -196,7 +196,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void inactive(IdsRequest request) {
+    public void inactiveMyShop(IdsRequest request) {
         List<Product> products = productRepository.findByIds(request.getIds());
 
         request.getIds().forEach(id -> {
@@ -221,7 +221,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void delete(IdsRequest request) {
+    public void deleteMyShop(IdsRequest request) {
         List<Product> products = productRepository.findByIds(request.getIds());
 
         request.getIds().forEach(id -> {

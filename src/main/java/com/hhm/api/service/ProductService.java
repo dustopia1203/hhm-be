@@ -14,13 +14,13 @@ public interface ProductService {
 
     ProductResponse getById(UUID id);
 
-    Product create(ProductCreateOrUpdateRequest request);
+    Product createMyShop(ProductCreateOrUpdateRequest request);
 
-    Product update(UUID id, ProductCreateOrUpdateRequest request);
+    Product updateMyShop(UUID id, ProductCreateOrUpdateRequest request);
 
-    void active(IdsRequest request);
+    void activeMyShop(IdsRequest request);
 
-    void inactive(IdsRequest request);
+    void inactiveMyShop(IdsRequest request);
 
-    void delete(IdsRequest request);
+    void deleteMyShop(IdsRequest request);
 }
