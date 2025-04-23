@@ -5,6 +5,7 @@ import com.hhm.api.model.dto.request.IdsRequest;
 import com.hhm.api.model.dto.request.ProductCreateOrUpdateRequest;
 import com.hhm.api.model.dto.request.ProductSearchRequest;
 import com.hhm.api.model.dto.response.PagingResponse;
+import com.hhm.api.model.dto.response.ProductResponse;
 import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.model.entity.Product;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +33,7 @@ public interface ProductController {
 
     @Operation(summary = "Get product by id")
     @GetMapping("/{id}")
-    Response<Product> getById(@PathVariable UUID id);
+    Response<ProductResponse> getById(@PathVariable UUID id);
 
     @Operation(summary = "Create new product")
     @PostMapping("")

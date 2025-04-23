@@ -4,6 +4,7 @@ import com.hhm.api.model.dto.request.IdsRequest;
 import com.hhm.api.model.dto.request.ProductCreateOrUpdateRequest;
 import com.hhm.api.model.dto.request.ProductSearchRequest;
 import com.hhm.api.model.dto.response.PagingResponse;
+import com.hhm.api.model.dto.response.ProductResponse;
 import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.model.entity.Product;
 import com.hhm.api.presentation.web.rest.ProductController;
@@ -24,7 +25,7 @@ public class ProductControllerImpl implements ProductController {
     }
 
     @Override
-    public Response<Product> getById(UUID id) {
+    public Response<ProductResponse> getById(UUID id) {
         return Response.of(productService.getById(id));
     }
 

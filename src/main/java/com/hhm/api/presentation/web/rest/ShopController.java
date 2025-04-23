@@ -40,12 +40,12 @@ public interface ShopController {
     Response<ShopDetailResponse> getMy();
 
     @Operation(summary = "Create my shop")
-    @PostMapping("")
+    @PostMapping("/my")
     @PreAuthorize("hasPermission(null, 'SHOP:SELF_CREATE')")
     Response<Shop> createMy(@Valid @RequestBody ShopCreateOrUpdateRequest request);
 
     @Operation(summary = "Update my shop")
-    @PutMapping("")
+    @PutMapping("/my")
     @PreAuthorize("hasPermission(null, 'SHOP:SELF_UPDATE')")
     Response<Shop> updateMy(@Valid @RequestBody ShopCreateOrUpdateRequest request);
 

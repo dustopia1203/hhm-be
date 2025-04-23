@@ -1,25 +1,32 @@
 package com.hhm.api.service.impl;
 
 import com.hhm.api.model.dto.PageDTO;
+import com.hhm.api.model.dto.mapper.AutoMapper;
 import com.hhm.api.model.dto.request.IdsRequest;
 import com.hhm.api.model.dto.request.ProductCreateOrUpdateRequest;
 import com.hhm.api.model.dto.request.ProductSearchRequest;
+import com.hhm.api.model.dto.response.CategoryResponse;
+import com.hhm.api.model.dto.response.ProductResponse;
 import com.hhm.api.model.entity.Category;
 import com.hhm.api.model.entity.Product;
 import com.hhm.api.model.entity.Shop;
+import com.hhm.api.model.entity.projection.ReviewStat;
 import com.hhm.api.repository.CategoryRepository;
 import com.hhm.api.repository.ProductRepository;
+import com.hhm.api.repository.ReviewRepository;
 import com.hhm.api.repository.ShopRepository;
 import com.hhm.api.service.ProductService;
 import com.hhm.api.support.enums.ActiveStatus;
 import com.hhm.api.support.enums.error.AuthorizationError;
 import com.hhm.api.support.enums.error.BadRequestError;
+import com.hhm.api.support.enums.error.InternalServerError;
 import com.hhm.api.support.enums.error.NotFoundError;
 import com.hhm.api.support.exception.ResponseException;
 import com.hhm.api.support.util.IdUtils;
 import com.hhm.api.support.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +39,8 @@ public class ProductServiceImpl implements ProductService {
     private final ShopRepository shopRepository;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final AutoMapper autoMapper;
+    private final ReviewRepository reviewRepository;
 
     @Override
     public PageDTO<Product> search(ProductSearchRequest request) {
@@ -49,14 +58,45 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product getById(UUID id) {
+    public ProductResponse getById(UUID id) {
         Optional<Product> productOptional = productRepository.findById(id);
 
         if (productOptional.isEmpty()) {
             throw new ResponseException(NotFoundError.PRODUCT_NOT_FOUND);
         }
 
-        return productOptional.get();
+        Product product = productOptional.get();
+
+        ProductResponse response = autoMapper.toResponse(product);
+
+        response.setSoldCount(0);
+
+        List<String> images = List.of(product.getContentUrls().split(";"));
+
+        response.setImages(images);
+
+        ReviewStat reviewStat = reviewRepository.findStatByProduct(id);
+
+        response.setReviewCount(Objects.nonNull(reviewStat.getReviewCount()) ? reviewStat.getReviewCount() : 0L);
+        response.setRating(Objects.nonNull(reviewStat.getAvgRating()) ? reviewStat.getAvgRating() : 0);
+
+        List<Category> categories = categoryRepository.findTreeById(product.getCategoryId());
+
+        Optional<Category> rootCategoryOptional = categories.stream()
+                .filter(category -> Objects.isNull(category.getParentId()))
+                .findFirst();
+
+        if (rootCategoryOptional.isEmpty()) {
+            throw new ResponseException(InternalServerError.INTERNAL_SERVER_ERROR);
+        }
+
+        Category rootCategory = rootCategoryOptional.get();
+
+        CategoryResponse categoryResponse = buildCategoryTree(rootCategory, categories);
+
+        response.setCategory(categoryResponse);
+
+        return response;
     }
 
     @Override
@@ -199,5 +239,20 @@ public class ProductServiceImpl implements ProductService {
         });
 
         productRepository.saveAll(products);
+    }
+
+    private CategoryResponse buildCategoryTree(Category parent, List<Category> categories) {
+        List<CategoryResponse> subCategoryResponses = categories.stream()
+                .filter(category -> Objects.equals(category.getParentId(), parent.getId()))
+                .map(category -> buildCategoryTree(category, categories))
+                .toList();
+
+        if (CollectionUtils.isEmpty(subCategoryResponses)) subCategoryResponses = null;
+
+        return CategoryResponse.builder()
+                .id(parent.getId())
+                .name(parent.getName())
+                .subCategories(subCategoryResponses)
+                .build();
     }
 }

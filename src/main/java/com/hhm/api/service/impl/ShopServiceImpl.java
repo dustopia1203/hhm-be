@@ -198,11 +198,11 @@ public class ShopServiceImpl implements ShopService {
 
         Long productCount = productRepository.countByShop(shop.getId());
 
-        ReviewStat reviewCount = reviewRepository.findStatByShop(shop.getId());
+        ReviewStat reviewStat = reviewRepository.findStatByShop(shop.getId());
 
         response.setProductCount(productCount);
-        response.setReviewCount(Objects.nonNull(reviewCount.getReviewCount()) ? reviewCount.getReviewCount() : 0L);
-        response.setRating(Objects.nonNull(reviewCount.getAvgRating()) ? reviewCount.getAvgRating() : 0);
+        response.setReviewCount(Objects.nonNull(reviewStat.getReviewCount()) ? reviewStat.getReviewCount() : 0L);
+        response.setRating(Objects.nonNull(reviewStat.getAvgRating()) ? reviewStat.getAvgRating() : 0);
 
         return response;
     }
