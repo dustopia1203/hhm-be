@@ -2,11 +2,17 @@ package com.hhm.api.config.security;
 
 import com.hhm.api.config.properties.AuthenticationProperties;
 import com.hhm.api.support.enums.TokenType;
+import com.hhm.api.support.enums.error.AuthenticationError;
+import com.hhm.api.support.exception.ResponseException;
 import com.hhm.api.support.util.IdUtils;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +24,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class TokenProvider {
     private final AuthenticationProperties authenticationProperties;
 
@@ -61,11 +68,23 @@ public class TokenProvider {
     }
 
     private Claims extractClaims(String token) {
-        return Jwts
-                .parser()
-                .verifyWith(secretKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        try {
+            return Jwts
+                    .parser()
+                    .verifyWith(secretKey())
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+        } catch (io.jsonwebtoken.security.SignatureException | MalformedJwtException e) {
+            log.info("Invalid JWT signature");
+        } catch (ExpiredJwtException e) {
+            log.info("Expired JWT token");
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported JWT token.");
+        } catch (IllegalArgumentException e) {
+            log.info("JWT token compact of handler are invalid.");
+        }
+
+        throw new ResponseException(AuthenticationError.INVALID_AUTHENTICATION_TOKEN);
     }
 }
