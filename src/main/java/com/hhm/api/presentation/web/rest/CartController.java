@@ -25,7 +25,7 @@ public interface CartController {
     @PostMapping("/my")
     Response<Boolean> addToMyCart(@Valid @RequestBody AddCartRequest request);
 
-    @Operation(summary = "Get Item To Cart")
+    @Operation(summary = "Get my cart")
     @GetMapping("/my")
     Response<List<CartItemResponse>> getMyCart();
 
