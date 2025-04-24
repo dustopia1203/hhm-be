@@ -2,6 +2,7 @@ package com.hhm.api.presentation.web.rest.impl;
 
 import com.hhm.api.model.dto.request.AddCartRequest;
 import com.hhm.api.model.dto.request.IdsRequest;
+import com.hhm.api.model.dto.response.CartItemResponse;
 import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.model.entity.CartItem;
 import com.hhm.api.presentation.web.rest.CartController;
@@ -23,7 +24,7 @@ public class CartControllerImpl implements CartController {
     }
 
     @Override
-    public Response<List<CartItem>> getMyCart() {
+    public Response<List<CartItemResponse>> getMyCart() {
         return Response.of(cartService.getMyCart());
     }
 

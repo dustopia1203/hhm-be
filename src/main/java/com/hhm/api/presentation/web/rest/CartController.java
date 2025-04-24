@@ -2,6 +2,7 @@ package com.hhm.api.presentation.web.rest;
 
 import com.hhm.api.model.dto.request.AddCartRequest;
 import com.hhm.api.model.dto.request.IdsRequest;
+import com.hhm.api.model.dto.response.CartItemResponse;
 import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.model.entity.CartItem;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +27,7 @@ public interface CartController {
 
     @Operation(summary = "Get Item To Cart")
     @GetMapping("/my")
-    Response<List<CartItem>> getMyCart();
+    Response<List<CartItemResponse>> getMyCart();
 
     @Operation(summary = "Delete from my cart")
     @DeleteMapping("/my")
