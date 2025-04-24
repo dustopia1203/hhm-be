@@ -20,6 +20,7 @@ import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -48,19 +49,35 @@ public class TokenProvider {
     }
 
     public String extractSubject(String token) {
-        return extractClaims(token).getSubject();
+        Claims claims = extractClaims(token);
+
+        if (Objects.isNull(claims)) return null;
+
+        return claims.getSubject();
     }
 
     public String extractUserId(String token) {
-        return extractClaims(token).getId();
+        Claims claims = extractClaims(token);
+
+        if (Objects.isNull(claims)) return null;
+
+        return claims.getId();
     }
 
     public Date extractIssuedAt(String token) {
-        return extractClaims(token).getIssuedAt();
+        Claims claims = extractClaims(token);
+
+        if (Objects.isNull(claims)) return null;
+
+        return claims.getIssuedAt();
     }
 
     public Date extractExpiration(String token) {
-        return extractClaims(token).getExpiration();
+        Claims claims = extractClaims(token);
+
+        if (Objects.isNull(claims)) return null;
+
+        return claims.getExpiration();
     }
 
     private SecretKey secretKey() {
@@ -85,6 +102,6 @@ public class TokenProvider {
             log.info("JWT token compact of handler are invalid.");
         }
 
-        throw new ResponseException(AuthenticationError.INVALID_AUTHENTICATION_TOKEN);
+        return null;
     }
 }
