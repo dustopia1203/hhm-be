@@ -1,8 +1,8 @@
 package com.hhm.api.repository.custom.impl;
 
-import com.hhm.api.model.dto.request.CategorySearchRequest;
-import com.hhm.api.model.entity.Category;
-import com.hhm.api.repository.custom.CategoryRepositoryCustom;
+import com.hhm.api.model.dto.request.ShippingSearchRequest;
+import com.hhm.api.model.entity.Shipping;
+import com.hhm.api.repository.custom.ShippingRepositoryCustom;
 import com.hhm.api.support.util.QueryUtils;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -16,15 +16,15 @@ import java.util.Map;
 import java.util.Objects;
 
 @Repository
-public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
+public class ShippingRepositoryImpl implements ShippingRepositoryCustom {
     @PersistenceContext
     private EntityManager entityManager;
 
     @Override
-    public Long count(CategorySearchRequest request) {
+    public Long count(ShippingSearchRequest request) {
         Map<String, Object> values = new HashMap<>();
 
-        String queryString = "SELECT COUNT(c) FROM Category c " + createCriteriaQuery(request, values);
+        String queryString = "SELECT COUNT(s) FROM Shipping s " + createCriteriaQuery(request, values);
 
         Query query = entityManager.createQuery(queryString, Long.class);
 
@@ -34,12 +34,12 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
     }
 
     @Override
-    public List<Category> search(CategorySearchRequest request) {
+    public List<Shipping> search(ShippingSearchRequest request) {
         Map<String, Object> values = new HashMap<>();
 
-        String queryString = "SELECT c FROM Category c " + createCriteriaQuery(request, values) + QueryUtils.createOrderQuery(request, "c");
+        String queryString = "SELECT s FROM Shipping s " + createCriteriaQuery(request, values) + QueryUtils.createOrderQuery(request, "s");
 
-        Query query = entityManager.createQuery(queryString, Category.class);
+        Query query = entityManager.createQuery(queryString, Shipping.class);
 
         values.forEach(query::setParameter);
 
@@ -49,33 +49,25 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
         return query.getResultList();
     }
 
-    private String createCriteriaQuery(CategorySearchRequest request, Map<String, Object> values) {
+    private String createCriteriaQuery(ShippingSearchRequest request, Map<String, Object> values) {
         StringBuilder criteriaQuery = new StringBuilder("WHERE 1 = 1 ");
 
-        criteriaQuery.append("AND c.deleted = FALSE ");
+        criteriaQuery.append("AND s.deleted = FALSE ");
 
         if (Objects.nonNull(request.getKeyword())) {
-            criteriaQuery.append("AND c.name LIKE :keyword ");
+            criteriaQuery.append("AND (s.name LIKE :keyword) ");
 
             values.put("keyword", QueryUtils.encodeLikeString(request.getKeyword()));
         }
 
         if (!CollectionUtils.isEmpty(request.getIds())) {
-            criteriaQuery.append("AND c.id IN :ids ");
+            criteriaQuery.append("AND s.id IN :ids ");
 
-            values.put("ids", request.getIds());
-        }
-
-        if (!CollectionUtils.isEmpty(request.getParentIds())) {
-            criteriaQuery.append("AND c.parentId IN :parentIds ");
-
-            values.put("parentIds", request.getParentIds());
-        } else {
-            criteriaQuery.append("AND c.parentId IS NULL ");
+            values.put("userIds", request.getIds());
         }
 
         if (Objects.nonNull(request.getStatus())) {
-            criteriaQuery.append("AND c.status = :status ");
+            criteriaQuery.append("AND s.status = :status ");
 
             values.put("status", request.getStatus());
         }
