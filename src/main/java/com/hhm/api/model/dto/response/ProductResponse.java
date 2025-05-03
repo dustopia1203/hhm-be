@@ -1,5 +1,6 @@
 package com.hhm.api.model.dto.response;
 
+import com.hhm.api.support.enums.ActiveStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -25,5 +26,6 @@ public class ProductResponse {
     private Long reviewCount;
     private Float rating;
     private CategoryResponse category;
+    private ActiveStatus status;
     private Instant createdAt;
 }
