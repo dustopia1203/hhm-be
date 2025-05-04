@@ -63,7 +63,7 @@ public class ShippingRepositoryImpl implements ShippingRepositoryCustom {
         if (!CollectionUtils.isEmpty(request.getIds())) {
             criteriaQuery.append("AND s.id IN :ids ");
 
-            values.put("userIds", request.getIds());
+            values.put("ids", request.getIds());
         }
 
         if (Objects.nonNull(request.getStatus())) {
