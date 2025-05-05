@@ -31,7 +31,7 @@ public interface ShippingController {
     PagingResponse<Shipping> search(@ValidatePaging(sortModel = Shipping.class) ShippingSearchRequest request);
 
     @Operation(summary = "Create shipping service")
-    @PostMapping("/")
+    @PostMapping("")
     @PreAuthorize("hasPermission(null, 'SHIPPING:CREATE')")
     Response<Shipping> create(@Valid @RequestBody ShippingCreateOrUpdateRequest request);
 
@@ -52,7 +52,7 @@ public interface ShippingController {
     Response<Boolean> inactive(@RequestBody IdsRequest request);
 
     @Operation(summary = "Delete shipping services")
-    @DeleteMapping("/")
+    @DeleteMapping("")
     @PreAuthorize("hasPermission(null, 'SHIPPING:DELETE')")
     Response<Boolean> delete(@RequestBody IdsRequest request);
 }
