@@ -11,8 +11,10 @@ import java.util.UUID;
 @Builder
 public class OrderItemResponse {
     private UUID id;
+    private UUID shopId;
     private UUID productId;
     private UUID shippingId;
+    private String shopName;
     private BigDecimal price;
     private Integer amount;
     private String address;

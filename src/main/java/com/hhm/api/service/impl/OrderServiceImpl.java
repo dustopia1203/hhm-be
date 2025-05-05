@@ -136,10 +136,26 @@ public class OrderServiceImpl implements OrderService {
 
         List<Product> products = productRepository.findByIds(productIds);
 
+        List<UUID> shopIds = orderItems.stream()
+                .map(OrderItem::getShopId)
+                .toList();
+
+        List<Shop> shops = shopRepository.findByIds(shopIds);
+
         List<OrderItemResponse> responses = new ArrayList<>();
 
         orderItems.forEach(orderItem -> {
             OrderItemResponse response = autoMapper.toResponse(orderItem);
+
+            Optional<Shop> shopOptional = shops.stream()
+                    .filter(shop -> Objects.equals(shop.getId(), orderItem.getProductId()))
+                    .findFirst();
+
+            if (shopOptional.isEmpty()) {
+                throw new ResponseException(NotFoundError.SHOP_NOT_FOUND);
+            }
+
+            Shop shop = shopOptional.get();
 
             Optional<Product> productOptional = products.stream()
                     .filter(product -> Objects.equals(product.getId(), orderItem.getProductId()))
@@ -151,6 +167,7 @@ public class OrderServiceImpl implements OrderService {
 
             Product product = productOptional.get();
 
+            response.setShopName(shop.getName());
             response.setProductName(product.getName());
             response.setProductImage(product.getContentUrls().split(";")[0]);
 
