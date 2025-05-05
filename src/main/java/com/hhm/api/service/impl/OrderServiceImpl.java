@@ -1,0 +1,162 @@
+package com.hhm.api.service.impl;
+
+import com.hhm.api.model.dto.PageDTO;
+import com.hhm.api.model.dto.mapper.AutoMapper;
+import com.hhm.api.model.dto.request.OrderCreateRequest;
+import com.hhm.api.model.dto.request.OrderItemCreateRequest;
+import com.hhm.api.model.dto.request.OrderItemSearchRequest;
+import com.hhm.api.model.dto.response.OrderItemResponse;
+import com.hhm.api.model.entity.OrderItem;
+import com.hhm.api.model.entity.Product;
+import com.hhm.api.model.entity.Shipping;
+import com.hhm.api.model.entity.Shop;
+import com.hhm.api.repository.OrderItemRepository;
+import com.hhm.api.repository.ProductRepository;
+import com.hhm.api.repository.ShippingRepository;
+import com.hhm.api.repository.ShopRepository;
+import com.hhm.api.service.OrderService;
+import com.hhm.api.support.enums.OrderItemStatus;
+import com.hhm.api.support.enums.error.NotFoundError;
+import com.hhm.api.support.exception.ResponseException;
+import com.hhm.api.support.util.IdUtils;
+import com.hhm.api.support.util.SecurityUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@RequiredArgsConstructor
+public class OrderServiceImpl implements OrderService {
+    private final OrderItemRepository orderItemRepository;
+    private final ShippingRepository shippingRepository;
+    private final ProductRepository productRepository;
+    private final AutoMapper autoMapper;
+    private final ShopRepository shopRepository;
+
+    @Override
+    public PageDTO<OrderItemResponse> searchOrderItem(OrderItemSearchRequest request) {
+        return queryOrderItem(request);
+    }
+
+    @Override
+    public PageDTO<OrderItemResponse> searchMyOrderItem(OrderItemSearchRequest request) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+
+        request.setUserIds(List.of(userId));
+
+        return queryOrderItem(request);
+    }
+
+    @Override
+    public PageDTO<OrderItemResponse> searchMyShopOrderItem(OrderItemSearchRequest request) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+
+        Optional<Shop> shopOptional = shopRepository.findByUser(userId);
+
+        if (shopOptional.isEmpty()) {
+            throw new ResponseException(NotFoundError.SHOP_NOT_FOUND);
+        }
+
+        Shop shop = shopOptional.get();
+
+        request.setShopIds(List.of(shop.getId()));
+
+        return queryOrderItem(request);
+    }
+
+    @Override
+    public List<OrderItem> createMy(OrderCreateRequest request) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+
+        Optional<Shipping> shippingOptional = shippingRepository.findById(request.getShippingId());
+
+        if (shippingOptional.isEmpty()) {
+            throw new ResponseException(NotFoundError.SHIPPING_NOT_FOUND);
+        }
+
+        Shipping shipping = shippingOptional.get();
+
+        List<UUID> productIds = request.getOrderItemCreateRequests().stream()
+                .map(OrderItemCreateRequest::getProductId)
+                .toList();
+
+        List<Product> products = productRepository.findByIds(productIds);
+
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        request.getOrderItemCreateRequests().forEach(item -> {
+            Optional<Product> productOptional = products.stream()
+                    .filter(product -> Objects.equals(product.getId(), item.getProductId()))
+                    .findFirst();
+
+            if (productOptional.isEmpty()) {
+                throw new ResponseException(NotFoundError.PRODUCT_NOT_FOUND);
+            }
+
+            Product product = productOptional.get();
+
+            OrderItem orderItem = OrderItem.builder()
+                    .id(IdUtils.nextId())
+                    .userId(userId)
+                    .productId(product.getId())
+                    .shopId(product.getShopId())
+                    .shippingId(shipping.getId())
+                    .price(item.getPrice())
+                    .amount(item.getAmount())
+                    .address(request.getAddress())
+                    .orderItemStatus(OrderItemStatus.PENDING)
+                    .deleted(Boolean.FALSE)
+                    .build();
+
+            orderItems.add(orderItem);
+        });
+
+        orderItemRepository.saveAll(orderItems);
+
+        return orderItems;
+    }
+
+    private PageDTO<OrderItemResponse> queryOrderItem(OrderItemSearchRequest request) {
+        Long count = orderItemRepository.count(request);
+
+        if (Objects.equals(count, 0L)) {
+            return PageDTO.empty(request.getPageIndex(), request.getPageSize());
+        }
+
+        List<OrderItem> orderItems = orderItemRepository.search(request);
+
+        List<UUID> productIds = orderItems.stream()
+                .map(OrderItem::getProductId)
+                .toList();
+
+        List<Product> products = productRepository.findByIds(productIds);
+
+        List<OrderItemResponse> responses = new ArrayList<>();
+
+        orderItems.forEach(orderItem -> {
+            OrderItemResponse response = autoMapper.toResponse(orderItem);
+
+            Optional<Product> productOptional = products.stream()
+                    .filter(product -> Objects.equals(product.getId(), orderItem.getProductId()))
+                    .findFirst();
+
+            if (productOptional.isEmpty()) {
+                throw new ResponseException(NotFoundError.PRODUCT_NOT_FOUND);
+            }
+
+            Product product = productOptional.get();
+
+            response.setProductName(product.getName());
+            response.setProductImage(product.getContentUrls().split(";")[0]);
+
+            responses.add(response);
+        });
+
+        return PageDTO.of(responses, request.getPageIndex(), request.getPageSize(), count);
+    }
+}
