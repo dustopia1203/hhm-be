@@ -41,11 +41,13 @@ public class OrderControllerImpl implements OrderController {
 
     @Override
     public Response<Boolean> refundMy(UUID id) {
-        return null;
+        orderService.refundMy(id);
+        return Response.ok();
     }
 
     @Override
     public Response<Boolean> completedMy(UUID id) {
-        return null;
+        orderService.completedMy(id);
+        return Response.ok();
     }
 }
