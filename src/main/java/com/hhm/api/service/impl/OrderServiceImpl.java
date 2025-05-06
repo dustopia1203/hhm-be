@@ -16,6 +16,7 @@ import com.hhm.api.repository.ShippingRepository;
 import com.hhm.api.repository.ShopRepository;
 import com.hhm.api.service.OrderService;
 import com.hhm.api.support.enums.OrderItemStatus;
+import com.hhm.api.support.enums.error.BadRequestError;
 import com.hhm.api.support.enums.error.NotFoundError;
 import com.hhm.api.support.exception.ResponseException;
 import com.hhm.api.support.util.IdUtils;
@@ -121,6 +122,32 @@ public class OrderServiceImpl implements OrderService {
         return orderItems;
     }
 
+    @Override
+    public void refundMy(UUID id) {
+        OrderItem orderItem = getMyOrderItem(id);
+
+        if (!Objects.equals(orderItem.getOrderItemStatus(), OrderItemStatus.DELIVERED)) {
+            throw new ResponseException(BadRequestError.ORDER_ITEM_ACTION_INVALID);
+        }
+
+        orderItem.setOrderItemStatus(OrderItemStatus.REFUND_PROGRESSING);
+
+        orderItemRepository.save(orderItem);
+    }
+
+    @Override
+    public void completedMy(UUID id) {
+        OrderItem orderItem = getMyOrderItem(id);
+
+        if (!Objects.equals(orderItem.getOrderItemStatus(), OrderItemStatus.DELIVERED)) {
+            throw new ResponseException(BadRequestError.ORDER_ITEM_ACTION_INVALID);
+        }
+
+        orderItem.setOrderItemStatus(OrderItemStatus.COMPLETED);
+
+        orderItemRepository.save(orderItem);
+    }
+
     private PageDTO<OrderItemResponse> queryOrderItem(OrderItemSearchRequest request) {
         Long count = orderItemRepository.count(request);
 
@@ -175,5 +202,17 @@ public class OrderServiceImpl implements OrderService {
         });
 
         return PageDTO.of(responses, request.getPageIndex(), request.getPageSize(), count);
+    }
+
+    private OrderItem getMyOrderItem(UUID id) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+
+        Optional<OrderItem> orderItemOptional = orderItemRepository.findByIdAndUser(id, userId);
+
+        if (orderItemOptional.isEmpty()) {
+            throw new ResponseException(NotFoundError.ORDER_ITEM_NOT_FOUND);
+        }
+
+        return orderItemOptional.get();
     }
 }

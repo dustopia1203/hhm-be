@@ -25,4 +25,8 @@ public interface ShopService {
     void inactive(IdsRequest request);
 
     void delete(IdsRequest request);
+
+    void confirmMyShopOrder(UUID orderId);
+
+    void confirmMyShopRefund(UUID orderId);
 }

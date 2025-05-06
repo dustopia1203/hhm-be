@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,5 +37,15 @@ public class OrderControllerImpl implements OrderController {
     @Override
     public Response<List<OrderItem>> createMy(OrderCreateRequest request) {
         return Response.of(orderService.createMy(request));
+    }
+
+    @Override
+    public Response<Boolean> refundMy(UUID id) {
+        return null;
+    }
+
+    @Override
+    public Response<Boolean> completedMy(UUID id) {
+        return null;
     }
 }

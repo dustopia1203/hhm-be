@@ -7,6 +7,7 @@ import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.entity.OrderItem;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface OrderService {
     PageDTO<OrderItemResponse> searchOrderItem(OrderItemSearchRequest request);
@@ -16,4 +17,8 @@ public interface OrderService {
     PageDTO<OrderItemResponse> searchMyShopOrderItem(OrderItemSearchRequest request);
 
     List<OrderItem> createMy(OrderCreateRequest request);
+
+    void refundMy(UUID id);
+
+    void completedMy(UUID id);
 }

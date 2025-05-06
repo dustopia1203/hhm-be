@@ -1,6 +1,7 @@
 package com.hhm.api.presentation.web.rest;
 
 import com.hhm.api.config.application.validator.ValidatePaging;
+import com.hhm.api.model.dto.request.IdsRequest;
 import com.hhm.api.model.dto.request.OrderCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemSearchRequest;
 import com.hhm.api.model.dto.response.OrderItemResponse;
@@ -9,14 +10,17 @@ import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.model.entity.OrderItem;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
+import java.util.UUID;
 
 @Tag(name = "Order Resources")
 @RequestMapping("/api/orders")
@@ -37,5 +41,13 @@ public interface OrderController {
 
     @Operation(summary = "Create my order")
     @PostMapping("/my")
-    Response<List<OrderItem>> createMy(@RequestBody OrderCreateRequest request);
+    Response<List<OrderItem>> createMy(@Valid @RequestBody OrderCreateRequest request);
+
+    @Operation(summary = "Refund my order")
+    @PostMapping("/my/{id}/refund")
+    Response<Boolean> refundMy(@PathVariable UUID id);
+
+    @Operation(summary = "Completed my order")
+    @PostMapping("/my/{id}/completed")
+    Response<Boolean> completedMy(@PathVariable UUID id);
 }

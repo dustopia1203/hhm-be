@@ -63,4 +63,12 @@ public interface ShopController {
     @DeleteMapping("")
     @PreAuthorize("hasPermission(null, 'SHOP:DELETE')")
     Response<Boolean> delete(@RequestBody IdsRequest request);
+
+    @Operation(summary = "Confirm my shop order")
+    @PostMapping("/my/{orderId}/confirm")
+    Response<Boolean> confirmMyShopOrder(@PathVariable UUID orderId);
+
+    @Operation(summary = "Confirm my shop order refund request")
+    @PostMapping("/my/{orderId}/refund")
+    Response<Boolean> confirmMyShopRefund(@PathVariable UUID orderId);
 }

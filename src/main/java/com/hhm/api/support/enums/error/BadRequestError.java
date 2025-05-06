@@ -21,6 +21,7 @@ public enum BadRequestError implements ResponseError {
     USER_ALREADY_HAS_SHOP(400013, "User already has shop"),
     SHIPPING_WAS_ACTIVATED(400014, "Shipping was activated"),
     SHIPPING_WAS_INACTIVATED(400014, "Shipping was inactivated"),
+    ORDER_ITEM_ACTION_INVALID(400015, "Order item action invalid"),
     ;
 
     private final int code;

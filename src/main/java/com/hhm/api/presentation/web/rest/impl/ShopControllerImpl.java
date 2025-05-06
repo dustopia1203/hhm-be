@@ -61,4 +61,16 @@ public class ShopControllerImpl implements ShopController {
         shopService.delete(request);
         return Response.ok();
     }
+
+    @Override
+    public Response<Boolean> confirmMyShopOrder(UUID orderId) {
+        shopService.confirmMyShopOrder(orderId);
+        return Response.ok();
+    }
+
+    @Override
+    public Response<Boolean> confirmMyShopRefund(UUID orderId) {
+        shopService.confirmMyShopRefund(orderId);
+        return Response.ok();
+    }
 }
