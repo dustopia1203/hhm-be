@@ -175,7 +175,7 @@ public class OrderServiceImpl implements OrderService {
             OrderItemResponse response = autoMapper.toResponse(orderItem);
 
             Optional<Shop> shopOptional = shops.stream()
-                    .filter(shop -> Objects.equals(shop.getId(), orderItem.getProductId()))
+                    .filter(shop -> Objects.equals(shop.getId(), orderItem.getShopId()))
                     .findFirst();
 
             if (shopOptional.isEmpty()) {
