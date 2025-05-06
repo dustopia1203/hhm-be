@@ -10,7 +10,7 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class AddCartRequest extends Request {
-    @NotNull(message = "PRODUCT_ID_REQUIRED")
+    @NotNull(message = "PRODUCT_REQUIRED")
     private UUID productId;
 
     @Min(
