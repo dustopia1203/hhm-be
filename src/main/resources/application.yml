@@ -49,3 +49,7 @@ security:
       access-token-expires-in: ${ACCESS_TOKEN_EXPIRES_IN:60m}
       refresh-token-expires-in: ${REFRESH_TOKEN_EXPIRES_IN:1d}
       refresh-token-long-expires-in: ${REFRESH_TOKEN_LONG_EXPIRES_IN:30d}
+
+elasticsearch:
+  host: localhost
+  port: 9200

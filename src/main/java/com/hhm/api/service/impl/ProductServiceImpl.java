@@ -7,6 +7,7 @@ import com.hhm.api.model.dto.request.ProductCreateOrUpdateRequest;
 import com.hhm.api.model.dto.request.ProductSearchRequest;
 import com.hhm.api.model.dto.response.CategoryResponse;
 import com.hhm.api.model.dto.response.ProductResponse;
+import com.hhm.api.model.elasticsearch.ProductDocument;
 import com.hhm.api.model.entity.Category;
 import com.hhm.api.model.entity.Product;
 import com.hhm.api.model.entity.Shop;
@@ -15,6 +16,7 @@ import com.hhm.api.repository.CategoryRepository;
 import com.hhm.api.repository.ProductRepository;
 import com.hhm.api.repository.ReviewRepository;
 import com.hhm.api.repository.ShopRepository;
+import com.hhm.api.repository.elasticsearch.ProductElasticsearchRepository;
 import com.hhm.api.service.ProductService;
 import com.hhm.api.support.enums.ActiveStatus;
 import com.hhm.api.support.enums.error.AuthorizationError;
@@ -41,6 +43,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final AutoMapper autoMapper;
     private final ReviewRepository reviewRepository;
+    private final ProductElasticsearchRepository productElasticsearchRepository;
 
     @Override
     public PageDTO<Product> search(ProductSearchRequest request) {
@@ -119,6 +122,7 @@ public class ProductServiceImpl implements ProductService {
                 .build();
 
         productRepository.save(product);
+        syncProductToElasticsearch(product);
 
         return product;
     }
@@ -146,6 +150,7 @@ public class ProductServiceImpl implements ProductService {
         product.setAmount(request.getAmount());
 
         productRepository.save(product);
+        syncProductToElasticsearch(product);
 
         return product;
     }
@@ -193,6 +198,7 @@ public class ProductServiceImpl implements ProductService {
         });
 
         productRepository.saveAll(products);
+        products.forEach(this::syncProductToElasticsearch);
     }
 
     @Override
@@ -218,6 +224,7 @@ public class ProductServiceImpl implements ProductService {
         });
 
         productRepository.saveAll(products);
+        products.forEach(this::syncProductToElasticsearch);
     }
 
     @Override
@@ -239,6 +246,7 @@ public class ProductServiceImpl implements ProductService {
         });
 
         productRepository.saveAll(products);
+        products.forEach(this::syncProductToElasticsearch);
     }
 
     private CategoryResponse buildCategoryTree(Category parent, List<Category> categories) {
@@ -254,5 +262,21 @@ public class ProductServiceImpl implements ProductService {
                 .name(parent.getName())
                 .subCategories(subCategoryResponses)
                 .build();
+    }
+
+    private void syncProductToElasticsearch(Product product) {
+        ProductDocument doc = ProductDocument.builder()
+                .id(product.getId())
+                .shopId(product.getShopId())
+                .categoryId(product.getCategoryId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .contentUrls(product.getContentUrls())
+                .price(product.getPrice())
+                .amount(product.getAmount())
+                .status(product.getStatus().name())
+                .deleted(product.getDeleted())
+                .build();
+        productElasticsearchRepository.save(doc);
     }
 }
