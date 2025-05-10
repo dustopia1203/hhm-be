@@ -86,14 +86,14 @@ public class AccountServiceImpl implements AccountService {
     private final RestTemplate rt;
 
     @Value("${google.client-id}")
-    private String cid;
+    private String clientId;
     @Value("${google.client-secret}")
-    private String secret;
-    @Value("${google.redirect-uri}")
-    private String redirect;
-    @Value("${google.user-info-uri}")
-    private String userinfo;
-    @Value("${google.token-uri}")
+    private String clientSecret;
+    @Value("${google.redirect-url}")
+    private String redirectUrl;
+    @Value("${google.user-info-url}")
+    private String userInfoUrl;
+    @Value("${google.token-url}")
     private String tokenUrl;
 
     @Override
@@ -292,9 +292,9 @@ public class AccountServiceImpl implements AccountService {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
         params.add("code", code);
-        params.add("client_id", cid);
-        params.add("client_secret", secret);
-        params.add("redirect_uri", redirect);
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
+        params.add("redirect_uri", redirectUrl);
         params.add("grant_type", "authorization_code");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
@@ -302,16 +302,10 @@ public class AccountServiceImpl implements AccountService {
         Map<String, Object> tokenData = rt.exchange(
                 tokenUrl, HttpMethod.POST, request, Map.class
         ).getBody();
-        tokenData.forEach(
-                (x, y) -> System.out.println(x + " " + y)
-        );
+
         String accessToken = (String) tokenData.get("access_token");
 
         String idToken = (String) tokenData.get("id_token");
-
-        Integer expiresInInteger = (Integer) tokenData.get("expires_in");
-
-        long expiresInSeconds = expiresInInteger.longValue();
 
         String[] parts = idToken.split("\\.");
 
@@ -328,23 +322,23 @@ public class AccountServiceImpl implements AccountService {
 
         String json = new String(Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8);
 
-        Map<String, Object> mp = new ObjectMapper().readValue(json, Map.class);
+        Map<String, Object> map = new ObjectMapper().readValue(json, Map.class);
 
-        Optional<User> existingUser = userRepository.findByEmail(mp.get("email").toString());
+        Optional<User> existingUser = userRepository.findByEmail(map.get("email").toString());
 
         User user;
 
         if (existingUser.isPresent()) {
             user = existingUser.get();
 
-            user.setUsername(mp.get("name").toString());
+            user.setUsername(map.get("name").toString());
 
         } else {
             user = User.builder()
                     .id(IdUtils.nextId())
                     .status(ActiveStatus.INACTIVE)
-                    .email(mp.get("email").toString())
-                    .username(mp.get("name").toString())
+                    .email(map.get("email").toString())
+                    .username(map.get("name").toString())
                     .accountType(AccountType.GOOGLE)
                     .deleted(Boolean.FALSE)
                     .password("google-auth-" + UUID.randomUUID())
@@ -356,24 +350,20 @@ public class AccountServiceImpl implements AccountService {
 
         UserInformation userInformation;
 
-        if (optionalUserInformation.isPresent()) {
-            userInformation = optionalUserInformation.get();
-
-        } else {
-            userInformation = UserInformation.builder()
-                    .id(IdUtils.nextId())
-                    .lastName(mp.get("given_name").toString())
-                    .firstName("")
-                    .middleName("")
-                    .address("")
-                    .avatarUrl(mp.get("picture").toString())
-                    .dateOfBirth(null)
-                    .deleted(Boolean.FALSE)
-                    .phone("")
-                    .gender(null)
-                    .userId(user.getId())
-                    .build();
-        }
+        userInformation = optionalUserInformation.orElseGet(
+                () -> UserInformation.builder()
+                .id(IdUtils.nextId())
+                .lastName(map.get("given_name").toString())
+                .firstName(null)
+                .middleName(null)
+                .address(null)
+                .avatarUrl(map.get("picture").toString())
+                .dateOfBirth(null)
+                .deleted(Boolean.FALSE)
+                .phone(null)
+                .gender(null)
+                .userId(user.getId())
+                .build());
 
         userInformationRepository.save(userInformation);
 
@@ -394,8 +384,8 @@ public class AccountServiceImpl implements AccountService {
 
         return AuthenticateResponse.builder()
                 .accessToken(accessToken)
-                .accessTokenExpiresIn(expiresInSeconds)
-                .accessTokenExpiredAt(Instant.now().plus(Duration.ofSeconds(expiresInSeconds)))
+                .accessTokenExpiresIn(Long.parseLong(tokenData.get("expires_in").toString()))
+                .accessTokenExpiredAt(Instant.now().plusSeconds(Long.parseLong(tokenData.get("expires_in").toString())))
                 .build();
     }
 }
