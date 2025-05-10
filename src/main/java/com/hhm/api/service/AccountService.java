@@ -7,7 +7,9 @@ import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
+import com.hhm.api.model.entity.User;
 
+import java.io.IOException;
 import java.util.UUID;
 
 public interface AccountService {
@@ -24,4 +26,6 @@ public interface AccountService {
     AuthenticateResponse refreshToken(RefreshTokenRequest request);
 
     ProfileResponse getAccountProfile();
+
+    AuthenticateResponse loginGoogle(String code) throws IOException;
 }

@@ -1,5 +1,6 @@
 package com.hhm.api.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hhm.api.config.properties.AuthenticationProperties;
 import com.hhm.api.config.security.CustomUserAuthentication;
 import com.hhm.api.config.security.TokenProvider;
@@ -38,17 +39,29 @@ import com.hhm.api.support.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -70,6 +83,18 @@ public class AccountServiceImpl implements AccountService {
     private final AutoMapper autoMapper;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
+    private final RestTemplate rt;
+
+    @Value("${google.client-id}")
+    private String cid;
+    @Value("${google.client-secret}")
+    private String secret;
+    @Value("${google.redirect-uri}")
+    private String redirect;
+    @Value("${google.user-info-uri}")
+    private String userinfo;
+    @Value("${google.token-uri}")
+    private String tokenUrl;
 
     @Override
     public void register(RegisterRequest request) {
@@ -255,5 +280,122 @@ public class AccountServiceImpl implements AccountService {
         UserInformation userInformation = userInformationRepository.findById(currentUserId).orElse(null);
 
         return autoMapper.toResponse(userAuthority, userInformation);
+    }
+
+    @Override
+    public AuthenticateResponse loginGoogle(String code) throws IOException {
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("code", code);
+        params.add("client_id", cid);
+        params.add("client_secret", secret);
+        params.add("redirect_uri", redirect);
+        params.add("grant_type", "authorization_code");
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        Map<String, Object> tokenData = rt.exchange(
+                tokenUrl, HttpMethod.POST, request, Map.class
+        ).getBody();
+        tokenData.forEach(
+                (x, y) -> System.out.println(x + " " + y)
+        );
+        String accessToken = (String) tokenData.get("access_token");
+
+        String idToken = (String) tokenData.get("id_token");
+
+        Integer expiresInInteger = (Integer) tokenData.get("expires_in");
+
+        long expiresInSeconds = expiresInInteger.longValue();
+
+        String[] parts = idToken.split("\\.");
+
+
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid ID token format");
+        }
+
+        String payload = parts[1];
+
+        int pad = 4 - (payload.length() % 4);
+
+        if (pad < 4) payload += "=".repeat(pad);
+
+        String json = new String(Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8);
+
+        Map<String, Object> mp = new ObjectMapper().readValue(json, Map.class);
+
+        Optional<User> existingUser = userRepository.findByEmail(mp.get("email").toString());
+
+        User user;
+
+        if (existingUser.isPresent()) {
+            user = existingUser.get();
+
+            user.setUsername(mp.get("name").toString());
+
+        } else {
+            user = User.builder()
+                    .id(IdUtils.nextId())
+                    .status(ActiveStatus.INACTIVE)
+                    .email(mp.get("email").toString())
+                    .username(mp.get("name").toString())
+                    .accountType(AccountType.GOOGLE)
+                    .deleted(Boolean.FALSE)
+                    .password("google-auth-" + UUID.randomUUID())
+                    .build();
+
+            userRepository.save(user);
+        }
+        Optional<UserInformation> optionalUserInformation = userInformationRepository.findByUserId(user.getId());
+
+        UserInformation userInformation;
+
+        if (optionalUserInformation.isPresent()) {
+            userInformation = optionalUserInformation.get();
+
+        } else {
+            userInformation = UserInformation.builder()
+                    .id(IdUtils.nextId())
+                    .lastName(mp.get("given_name").toString())
+                    .firstName("")
+                    .middleName("")
+                    .address("")
+                    .avatarUrl(mp.get("picture").toString())
+                    .dateOfBirth(null)
+                    .deleted(Boolean.FALSE)
+                    .phone("")
+                    .gender(null)
+                    .userId(user.getId())
+                    .build();
+        }
+
+        userInformationRepository.save(userInformation);
+
+        Role memberRole = roleRepository.findByCode(Constants.DefaultRole.MEMBER.name()).orElse(null);
+
+        if (Objects.nonNull(memberRole)) {
+
+            UserRole userRole = UserRole.builder()
+                    .id(IdUtils.nextId())
+                    .userId(user.getId())
+                    .roleId(memberRole.getId())
+                    .deleted(Boolean.FALSE)
+                    .build();
+
+            userRoleRepository.save(userRole);
+
+        }
+
+        return AuthenticateResponse.builder()
+                .accessToken(accessToken)
+                .accessTokenExpiresIn(expiresInSeconds)
+                .accessTokenExpiredAt(Instant.now().plus(Duration.ofSeconds(expiresInSeconds)))
+                .build();
     }
 }
