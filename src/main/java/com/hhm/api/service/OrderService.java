@@ -3,6 +3,7 @@ package com.hhm.api.service;
 import com.hhm.api.model.dto.PageDTO;
 import com.hhm.api.model.dto.request.OrderCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemSearchRequest;
+import com.hhm.api.model.dto.request.RefundRequest;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.entity.OrderItem;
 
@@ -18,7 +19,7 @@ public interface OrderService {
 
     List<OrderItem> createMy(OrderCreateRequest request);
 
-    void refundMy(UUID id);
+    void refundMy(UUID id, RefundRequest request);
 
     void completedMy(UUID id);
 }

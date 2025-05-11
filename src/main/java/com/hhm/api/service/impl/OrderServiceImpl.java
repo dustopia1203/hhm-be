@@ -5,13 +5,16 @@ import com.hhm.api.model.dto.mapper.AutoMapper;
 import com.hhm.api.model.dto.request.OrderCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemSearchRequest;
+import com.hhm.api.model.dto.request.RefundRequest;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.entity.OrderItem;
 import com.hhm.api.model.entity.Product;
+import com.hhm.api.model.entity.Refund;
 import com.hhm.api.model.entity.Shipping;
 import com.hhm.api.model.entity.Shop;
 import com.hhm.api.repository.OrderItemRepository;
 import com.hhm.api.repository.ProductRepository;
+import com.hhm.api.repository.RefundRepository;
 import com.hhm.api.repository.ShippingRepository;
 import com.hhm.api.repository.ShopRepository;
 import com.hhm.api.service.OrderService;
@@ -21,6 +24,7 @@ import com.hhm.api.support.enums.error.NotFoundError;
 import com.hhm.api.support.exception.ResponseException;
 import com.hhm.api.support.util.IdUtils;
 import com.hhm.api.support.util.SecurityUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +42,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRepository productRepository;
     private final AutoMapper autoMapper;
     private final ShopRepository shopRepository;
+    private final RefundRepository refundRepository;
 
     @Override
     public PageDTO<OrderItemResponse> searchOrderItem(OrderItemSearchRequest request) {
@@ -123,7 +128,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void refundMy(UUID id) {
+    @Transactional
+    public void refundMy(UUID id, RefundRequest request) {
         OrderItem orderItem = getMyOrderItem(id);
 
         if (!Objects.equals(orderItem.getOrderItemStatus(), OrderItemStatus.DELIVERED)) {
@@ -131,6 +137,15 @@ public class OrderServiceImpl implements OrderService {
         }
 
         orderItem.setOrderItemStatus(OrderItemStatus.REFUND_PROGRESSING);
+
+        Refund refund = Refund.builder()
+                .id(IdUtils.nextId())
+                .orderItemId(id)
+                .reason(request.getReason())
+                .images(request.getImages())
+                .build();
+
+        refundRepository.save(refund);
 
         orderItemRepository.save(orderItem);
     }

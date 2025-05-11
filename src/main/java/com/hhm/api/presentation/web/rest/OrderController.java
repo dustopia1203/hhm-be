@@ -4,6 +4,7 @@ import com.hhm.api.config.application.validator.ValidatePaging;
 import com.hhm.api.model.dto.request.IdsRequest;
 import com.hhm.api.model.dto.request.OrderCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemSearchRequest;
+import com.hhm.api.model.dto.request.RefundRequest;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
@@ -45,7 +46,8 @@ public interface OrderController {
 
     @Operation(summary = "Refund my order")
     @PostMapping("/my/{id}/refund")
-    Response<Boolean> refundMy(@PathVariable UUID id);
+    Response<Boolean> refundMy(@PathVariable UUID id,
+                               @RequestBody RefundRequest request);
 
     @Operation(summary = "Completed my order")
     @PostMapping("/my/{id}/completed")

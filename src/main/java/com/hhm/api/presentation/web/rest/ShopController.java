@@ -7,6 +7,7 @@ import com.hhm.api.model.dto.request.ShopSearchRequest;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.model.dto.response.ShopDetailResponse;
+import com.hhm.api.model.entity.Refund;
 import com.hhm.api.model.entity.Shop;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -67,6 +68,10 @@ public interface ShopController {
     @Operation(summary = "Confirm my shop order")
     @PostMapping("/my/{orderId}/confirm")
     Response<Boolean> confirmMyShopOrder(@PathVariable UUID orderId);
+
+    @Operation(summary = "Get my shop refund request")
+    @GetMapping("/my/{orderId}/refund")
+    Response<Refund> getMyShopRefund(@PathVariable UUID orderId);
 
     @Operation(summary = "Confirm my shop order refund request")
     @PostMapping("/my/{orderId}/refund")

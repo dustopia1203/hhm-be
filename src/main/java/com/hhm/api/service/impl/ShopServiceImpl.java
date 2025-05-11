@@ -7,10 +7,12 @@ import com.hhm.api.model.dto.request.ShopCreateOrUpdateRequest;
 import com.hhm.api.model.dto.request.ShopSearchRequest;
 import com.hhm.api.model.dto.response.ShopDetailResponse;
 import com.hhm.api.model.entity.OrderItem;
+import com.hhm.api.model.entity.Refund;
 import com.hhm.api.model.entity.Shop;
 import com.hhm.api.model.entity.projection.ReviewStat;
 import com.hhm.api.repository.OrderItemRepository;
 import com.hhm.api.repository.ProductRepository;
+import com.hhm.api.repository.RefundRepository;
 import com.hhm.api.repository.ReviewRepository;
 import com.hhm.api.repository.ShopRepository;
 import com.hhm.api.service.ShopService;
@@ -38,6 +40,7 @@ public class ShopServiceImpl implements ShopService {
     private final ProductRepository productRepository;
     private final ReviewRepository reviewRepository;
     private final OrderItemRepository orderItemRepository;
+    private final RefundRepository refundRepository;
 
     @Override
     public PageDTO<Shop> search(ShopSearchRequest request) {
@@ -198,8 +201,8 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
-    public void confirmMyShopOrder(UUID orderId) {
-        OrderItem orderItem = getMyShopOrderItem(orderId);
+    public void confirmMyShopOrder(UUID orderItemId) {
+        OrderItem orderItem = getMyShopOrderItem(orderItemId);
 
         if (!Objects.equals(orderItem.getOrderItemStatus(), OrderItemStatus.PENDING)) {
             throw new ResponseException(BadRequestError.ORDER_ITEM_ACTION_INVALID);
@@ -211,8 +214,19 @@ public class ShopServiceImpl implements ShopService {
     }
 
     @Override
-    public void confirmMyShopRefund(UUID orderId) {
-        OrderItem orderItem = getMyShopOrderItem(orderId);
+    public Refund getMyShopRefund(UUID orderItemId) {
+        Optional<Refund> refundOptional = refundRepository.findByOrderItem(orderItemId);
+
+        if (refundOptional.isEmpty()) {
+            throw new ResponseException(NotFoundError.REFUND_NOT_FOUND);
+        }
+
+        return refundOptional.get();
+    }
+
+    @Override
+    public void confirmMyShopRefund(UUID orderItemId) {
+        OrderItem orderItem = getMyShopOrderItem(orderItemId);
 
         if (!Objects.equals(orderItem.getOrderItemStatus(), OrderItemStatus.REFUND_PROGRESSING)) {
             throw new ResponseException(BadRequestError.ORDER_ITEM_ACTION_INVALID);
