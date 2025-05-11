@@ -83,7 +83,7 @@ public class AccountServiceImpl implements AccountService {
     private final AutoMapper autoMapper;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
-    private final RestTemplate rt;
+    private final RestTemplate restTemplate;
 
     @Value("${google.client-id}")
     private String clientId;
@@ -91,8 +91,6 @@ public class AccountServiceImpl implements AccountService {
     private String clientSecret;
     @Value("${google.redirect-url}")
     private String redirectUrl;
-    @Value("${google.user-info-url}")
-    private String userInfoUrl;
     @Value("${google.token-url}")
     private String tokenUrl;
 
@@ -299,7 +297,7 @@ public class AccountServiceImpl implements AccountService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        Map<String, Object> tokenData = rt.exchange(
+        Map<String, Object> tokenData = restTemplate.exchange(
                 tokenUrl, HttpMethod.POST, request, Map.class
         ).getBody();
 
@@ -320,9 +318,9 @@ public class AccountServiceImpl implements AccountService {
 
         if (pad < 4) payload += "=".repeat(pad);
 
-        String json = new String(Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8);
+        String userClaimsJson  = new String(Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8);
 
-        Map<String, Object> map = new ObjectMapper().readValue(json, Map.class);
+        Map<String, Object> map = new ObjectMapper().readValue(userClaimsJson , Map.class);
 
         Optional<User> existingUser = userRepository.findByEmail(map.get("email").toString());
 
