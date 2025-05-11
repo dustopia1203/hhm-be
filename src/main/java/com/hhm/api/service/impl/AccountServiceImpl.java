@@ -320,23 +320,23 @@ public class AccountServiceImpl implements AccountService {
 
         String userClaimsJson  = new String(Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8);
 
-        Map<String, Object> map = new ObjectMapper().readValue(userClaimsJson , Map.class);
+        Map<String, Object> informationData = new ObjectMapper().readValue(userClaimsJson , Map.class);
 
-        Optional<User> existingUser = userRepository.findByEmail(map.get("email").toString());
+        Optional<User> existingUser = userRepository.findByEmail(informationData.get("email").toString());
 
         User user;
 
         if (existingUser.isPresent()) {
             user = existingUser.get();
 
-            user.setUsername(map.get("name").toString());
+            user.setUsername(informationData.get("name").toString());
 
         } else {
             user = User.builder()
                     .id(IdUtils.nextId())
                     .status(ActiveStatus.INACTIVE)
-                    .email(map.get("email").toString())
-                    .username(map.get("name").toString())
+                    .email(informationData.get("email").toString())
+                    .username(informationData.get("name").toString())
                     .accountType(AccountType.GOOGLE)
                     .deleted(Boolean.FALSE)
                     .password("google-auth-" + UUID.randomUUID())
@@ -351,11 +351,11 @@ public class AccountServiceImpl implements AccountService {
         userInformation = optionalUserInformation.orElseGet(
                 () -> UserInformation.builder()
                 .id(IdUtils.nextId())
-                .lastName(map.get("given_name").toString())
+                .lastName(informationData.get("given_name").toString())
                 .firstName(null)
                 .middleName(null)
                 .address(null)
-                .avatarUrl(map.get("picture").toString())
+                .avatarUrl(informationData.get("picture").toString())
                 .dateOfBirth(null)
                 .deleted(Boolean.FALSE)
                 .phone(null)
