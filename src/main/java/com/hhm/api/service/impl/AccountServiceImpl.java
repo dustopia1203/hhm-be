@@ -1,6 +1,5 @@
 package com.hhm.api.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hhm.api.config.properties.AuthenticationProperties;
 import com.hhm.api.config.security.CustomUserAuthentication;
 import com.hhm.api.config.security.TokenProvider;
@@ -55,11 +54,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
@@ -93,6 +90,8 @@ public class AccountServiceImpl implements AccountService {
     private String redirectUrl;
     @Value("${google.token-url}")
     private String tokenUrl;
+    @Value("${google.user-info-url}")
+    private String userInforUrl;
 
     @Override
     public void register(RegisterRequest request) {
@@ -303,24 +302,15 @@ public class AccountServiceImpl implements AccountService {
 
         String accessToken = (String) tokenData.get("access_token");
 
-        String idToken = (String) tokenData.get("id_token");
+        HttpHeaders headers1 = new HttpHeaders();
 
-        String[] parts = idToken.split("\\.");
+        headers1.setBearerAuth(accessToken);
 
+        HttpEntity<String> entity = new HttpEntity<>(headers1);
 
-        if (parts.length != 3) {
-            throw new IllegalArgumentException("Invalid ID token format");
-        }
-
-        String payload = parts[1];
-
-        int pad = 4 - (payload.length() % 4);
-
-        if (pad < 4) payload += "=".repeat(pad);
-
-        String userClaimsJson  = new String(Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8);
-
-        Map<String, Object> userInformationData = new ObjectMapper().readValue(userClaimsJson , Map.class);
+        Map<String, Object> userInformationData = restTemplate.exchange(
+                userInforUrl, HttpMethod.GET, entity, Map.class
+        ).getBody();
 
         Optional<User> existingUser = userRepository.findByEmail(userInformationData.get("email").toString());
 
@@ -334,7 +324,7 @@ public class AccountServiceImpl implements AccountService {
         } else {
             user = User.builder()
                     .id(IdUtils.nextId())
-                    .status(ActiveStatus.INACTIVE)
+                    .status(ActiveStatus.ACTIVE)
                     .email(userInformationData.get("email").toString())
                     .username(userInformationData.get("name").toString())
                     .accountType(AccountType.GOOGLE)
@@ -350,18 +340,18 @@ public class AccountServiceImpl implements AccountService {
 
         userInformation = optionalUserInformation.orElseGet(
                 () -> UserInformation.builder()
-                .id(IdUtils.nextId())
-                .lastName(userInformationData.get("given_name").toString())
-                .firstName(null)
-                .middleName(null)
-                .address(null)
-                .avatarUrl(userInformationData.get("picture").toString())
-                .dateOfBirth(null)
-                .deleted(Boolean.FALSE)
-                .phone(null)
-                .gender(null)
-                .userId(user.getId())
-                .build());
+                        .id(IdUtils.nextId())
+                        .lastName(userInformationData.get("given_name").toString())
+                        .firstName(null)
+                        .middleName(null)
+                        .address(null)
+                        .avatarUrl(userInformationData.get("picture").toString())
+                        .dateOfBirth(null)
+                        .deleted(Boolean.FALSE)
+                        .phone(null)
+                        .gender(null)
+                        .userId(user.getId())
+                        .build());
 
         userInformationRepository.save(userInformation);
 
