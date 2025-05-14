@@ -19,4 +19,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, UUID>, Ord
 
     @Query("SELECT oi FROM OrderItem oi WHERE oi.deleted = FALSE AND oi.id = :id AND oi.userId = :userId")
     Optional<OrderItem> findByIdAndUser(UUID id, UUID userId);
+
+    @Query("SELECT COUNT(oi) FROM OrderItem oi WHERE oi.deleted = FALSE AND oi.productId = :productId")
+    Long countByProduct(UUID productId);
 }

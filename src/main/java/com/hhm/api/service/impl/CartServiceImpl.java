@@ -105,7 +105,7 @@ public class CartServiceImpl implements CartService {
             Shop shop = shopOptional.get();
 
             response.setShopName(shop.getName());
-            response.setLeftCount(0);
+            response.setLeftCount(product.getAmount());
 
             responses.add(response);
         });
