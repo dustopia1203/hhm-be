@@ -50,8 +50,6 @@ public class ProductServiceImpl implements ProductService {
             return PageDTO.empty(request.getPageIndex(), request.getPageSize());
         }
 
-
-
         List<Product> products = productRepository.search(request);
 
         return PageDTO.of(products, request.getPageIndex(), request.getPageSize(), count);

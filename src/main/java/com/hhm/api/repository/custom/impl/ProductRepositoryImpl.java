@@ -84,6 +84,18 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             values.put("status", request.getStatus());
         }
 
+        if (Objects.nonNull(request.getMinPrice())) {
+            criteriaQuery.append("AND p.price <= :minPrice");
+
+            values.put("minPrice", request.getMinPrice());
+        }
+
+        if (Objects.nonNull(request.getMaxPrice())) {
+            criteriaQuery.append("AND p.price <= :maxPrice");
+
+            values.put("maxPrice", request.getMaxPrice());
+        }
+
         return criteriaQuery.toString();
     }
 }

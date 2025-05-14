@@ -4,6 +4,7 @@ import com.hhm.api.support.enums.ActiveStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,5 +14,7 @@ public class ProductSearchRequest extends PagingRequest {
     private List<UUID> ids;
     private List<UUID> shopIds;
     private List<UUID> categoryIds;
+    private BigDecimal minPrice;
+    private BigDecimal maxPrice;
     private ActiveStatus status;
 }
