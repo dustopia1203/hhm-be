@@ -65,4 +65,9 @@ public class AccountControllerImpl implements AccountController {
     public Response<AuthenticateResponse> loginGoogle(String code) throws IOException {
         return Response.of(accountService.loginGoogle(code));
     }
+
+    @Override
+    public Response<AuthenticateResponse> loginFacebook(String code)  {
+        return Response.of(accountService.loginFacebook(code));
+    }
 }

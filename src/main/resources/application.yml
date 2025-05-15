@@ -57,3 +57,11 @@ google:
   token-url: https://oauth2.googleapis.com/token
   user-info-url: https://www.googleapis.com/oauth2/v3/userinfo
   scope: openid%20email%20profile
+facebook:
+  client-id: 673613752250343
+  client-secret: 6d82c600eb888c56a1e5cc987f2e2955
+  redirect-url: http://localhost:8080/api/account/authenticate/facebook
+  auth-url: https://www.facebook.com/v12.0/dialog/oauth
+  token-url: https://graph.facebook.com/v12.0/oauth/access_token
+  user-info-url: https://graph.facebook.com/me?fields=id,name,email,picture,first_name,middle_name,last_name,gender
+  scope: email%20public_profile

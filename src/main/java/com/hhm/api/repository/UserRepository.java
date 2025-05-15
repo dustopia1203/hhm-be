@@ -33,6 +33,6 @@ public interface UserRepository extends JpaRepository<User, UUID>, UserRepositor
     @Query("SELECT u FROM User u WHERE u.deleted = FALSE AND u.id IN :ids")
     List<User> findByIds(List<UUID> ids);
 
-    @Query("SELECT u FROM User u WHERE u.deleted = FALSE AND u.email = :email")
-    Optional<User> findByEmail(String email);
+    @Query("SELECT u FROM User u WHERE u.deleted = FALSE AND u.email = :email AND u.accountType =:accountType")
+    Optional<User> findByEmail(String email,Enum accountType);
 }

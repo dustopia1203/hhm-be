@@ -57,4 +57,8 @@ public interface AccountController {
     @GetMapping(value = "/authenticate/callback")
     Response<AuthenticateResponse> loginGoogle(@RequestParam("code") String code) throws IOException;
 
+    @Operation(summary = "Login Facebook")
+    @GetMapping(value = "/authenticate/facebook")
+    Response<AuthenticateResponse> loginFacebook(@RequestParam("code") String code);
+
 }

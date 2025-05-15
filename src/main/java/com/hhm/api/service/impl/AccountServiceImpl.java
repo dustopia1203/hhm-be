@@ -93,6 +93,17 @@ public class AccountServiceImpl implements AccountService {
     @Value("${google.user-info-url}")
     private String userInforUrl;
 
+    @Value("${facebook.token-url}")
+    private String tokenFacebookUrl;
+    @Value("${facebook.client-id}")
+    private String clientFacebookId;
+    @Value("${facebook.client-secret}")
+    private String clientFacebookSecret;
+    @Value("${facebook.redirect-url}")
+    private String redirectFacebookUrl;
+    @Value("${facebook.user-info-url}")
+    private String userInforFacebookUrl;
+
     @Override
     public void register(RegisterRequest request) {
         Optional<User> userOptional = userRepository.findSystemByEmail(request.getEmail());
@@ -312,21 +323,21 @@ public class AccountServiceImpl implements AccountService {
                 userInforUrl, HttpMethod.GET, entity, Map.class
         ).getBody();
 
-        Optional<User> existingUser = userRepository.findByEmail(userInformationData.get("email").toString());
+        Optional<User> existingUser = userRepository.findByEmail("Google: " + userInformationData.get("email").toString(), AccountType.GOOGLE);
 
         User user;
 
         if (existingUser.isPresent()) {
             user = existingUser.get();
 
-            user.setUsername(userInformationData.get("name").toString());
+            user.setUsername(UUID.randomUUID().toString());
 
         } else {
             user = User.builder()
                     .id(IdUtils.nextId())
                     .status(ActiveStatus.ACTIVE)
-                    .email(userInformationData.get("email").toString())
-                    .username(userInformationData.get("name").toString())
+                    .email("Google: " + userInformationData.get("email").toString())
+                    .username(UUID.randomUUID().toString())
                     .accountType(AccountType.GOOGLE)
                     .deleted(Boolean.FALSE)
                     .password("google-auth-" + UUID.randomUUID())
@@ -343,6 +354,110 @@ public class AccountServiceImpl implements AccountService {
                         .id(IdUtils.nextId())
                         .lastName(userInformationData.get("given_name").toString())
                         .firstName(null)
+                        .middleName(null)
+                        .address(null)
+                        .avatarUrl(userInformationData.get("picture").toString())
+                        .dateOfBirth(null)
+                        .deleted(Boolean.FALSE)
+                        .phone(null)
+                        .gender(null)
+                        .userId(user.getId())
+                        .build());
+
+        userInformationRepository.save(userInformation);
+
+        Role memberRole = roleRepository.findByCode(Constants.DefaultRole.MEMBER.name()).orElse(null);
+
+        if (Objects.nonNull(memberRole)) {
+
+            UserRole userRole = UserRole.builder()
+                    .id(IdUtils.nextId())
+                    .userId(user.getId())
+                    .roleId(memberRole.getId())
+                    .deleted(Boolean.FALSE)
+                    .build();
+
+            userRoleRepository.save(userRole);
+
+        }
+
+        return AuthenticateResponse.builder()
+                .accessToken(accessToken)
+                .accessTokenExpiresIn(Long.parseLong(tokenData.get("expires_in").toString()))
+                .accessTokenExpiredAt(Instant.now().plusSeconds(Long.parseLong(tokenData.get("expires_in").toString())))
+                .build();
+    }
+
+    @Override
+    public AuthenticateResponse loginFacebook(String code) {
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("code", code);
+        params.add("client_id", clientFacebookId);
+        params.add("client_secret", clientFacebookSecret);
+        params.add("redirect_uri", redirectFacebookUrl);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        Map<String, Object> tokenData = restTemplate.exchange(
+                tokenFacebookUrl, HttpMethod.POST, request, Map.class
+        ).getBody();
+
+        String accessToken = (String) tokenData.get("access_token");
+
+        HttpHeaders headers1 = new HttpHeaders();
+
+        headers1.setBearerAuth(accessToken);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers1);
+
+        Map<String, Object> userInformationData = restTemplate.exchange(
+                userInforFacebookUrl, HttpMethod.GET, entity, Map.class
+        ).getBody();
+
+        Optional<User> existingUser = userRepository.findByEmail("Facebook: " + userInformationData.get("email").toString(), AccountType.FACEBOOK);
+
+        User user;
+
+        if (existingUser.isPresent()) {
+            user = existingUser.get();
+
+            user.setUsername(UUID.randomUUID().toString());
+
+        } else {
+            user = User.builder()
+                    .id(IdUtils.nextId())
+                    .status(ActiveStatus.ACTIVE)
+                    .email("Facebook: " + userInformationData.get("email").toString())
+                    .username(UUID.randomUUID().toString())
+                    .accountType(AccountType.FACEBOOK)
+                    .deleted(Boolean.FALSE)
+                    .password("facebook-auth-" + UUID.randomUUID())
+                    .build();
+
+            userRepository.save(user);
+        }
+        Optional<UserInformation> optionalUserInformation = userInformationRepository.findByUserId(user.getId());
+
+        UserInformation userInformation;
+
+        String lastName = Optional.ofNullable(userInformationData.get("last_name").toString())
+                .map(Object::toString)
+                .orElse(null);
+
+        String firstName = Optional.ofNullable(userInformationData.get("first_name").toString())
+                .map(Object::toString)
+                .orElse(null);
+
+        userInformation = optionalUserInformation.orElseGet(
+                () -> UserInformation.builder()
+                        .id(IdUtils.nextId())
+                        .lastName(lastName)
+                        .firstName(firstName)
                         .middleName(null)
                         .address(null)
                         .avatarUrl(userInformationData.get("picture").toString())
