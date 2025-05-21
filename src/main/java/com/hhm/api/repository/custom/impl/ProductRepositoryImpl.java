@@ -85,13 +85,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         }
 
         if (Objects.nonNull(request.getMinPrice())) {
-            criteriaQuery.append("AND p.price <= :minPrice");
+            criteriaQuery.append("AND p.price >= :minPrice ");
 
             values.put("minPrice", request.getMinPrice());
         }
 
         if (Objects.nonNull(request.getMaxPrice())) {
-            criteriaQuery.append("AND p.price <= :maxPrice");
+            criteriaQuery.append("AND p.price <= :maxPrice ");
 
             values.put("maxPrice", request.getMaxPrice());
         }
