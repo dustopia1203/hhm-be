@@ -12,13 +12,18 @@ import com.hhm.api.model.entity.Product;
 import com.hhm.api.model.entity.Refund;
 import com.hhm.api.model.entity.Shipping;
 import com.hhm.api.model.entity.Shop;
+import com.hhm.api.model.entity.Transaction;
 import com.hhm.api.repository.OrderItemRepository;
 import com.hhm.api.repository.ProductRepository;
 import com.hhm.api.repository.RefundRepository;
 import com.hhm.api.repository.ShippingRepository;
 import com.hhm.api.repository.ShopRepository;
+import com.hhm.api.repository.TransactionRepository;
 import com.hhm.api.service.OrderService;
 import com.hhm.api.support.enums.OrderItemStatus;
+import com.hhm.api.support.enums.PaymentMethod;
+import com.hhm.api.support.enums.TransactionStatus;
+import com.hhm.api.support.enums.TransactionType;
 import com.hhm.api.support.enums.error.BadRequestError;
 import com.hhm.api.support.enums.error.NotFoundError;
 import com.hhm.api.support.exception.ResponseException;
@@ -26,8 +31,10 @@ import com.hhm.api.support.util.IdUtils;
 import com.hhm.api.support.util.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +50,7 @@ public class OrderServiceImpl implements OrderService {
     private final AutoMapper autoMapper;
     private final ShopRepository shopRepository;
     private final RefundRepository refundRepository;
+    private final TransactionRepository transactionRepository;
 
     @Override
     public PageDTO<OrderItemResponse> searchOrderItem(OrderItemSearchRequest request) {
@@ -76,7 +84,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderItem> createMy(OrderCreateRequest request) {
+    @Transactional
+    public List<OrderItem> codPaymentMyOrder(OrderCreateRequest request) {
         UUID userId = SecurityUtils.getCurrentUserId();
 
         Optional<Shipping> shippingOptional = shippingRepository.findById(request.getShippingId());
@@ -94,6 +103,21 @@ public class OrderServiceImpl implements OrderService {
         List<Product> products = productRepository.findByIds(productIds);
 
         List<OrderItem> orderItems = new ArrayList<>();
+
+        BigDecimal totalAmount = request.getOrderItemCreateRequests().stream()
+                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getAmount())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        Transaction transaction = Transaction.builder()
+                .id(IdUtils.nextId())
+                .userId(userId)
+                .amount(totalAmount)
+                .paymentMethod(PaymentMethod.CASH)
+                .transactionStatus(TransactionStatus.PENDING)
+                .transactionType(TransactionType.IN)
+                .referenceContext(RandomStringUtils.random(10))
+                .deleted(Boolean.FALSE)
+                .build();
 
         request.getOrderItemCreateRequests().forEach(item -> {
             Optional<Product> productOptional = products.stream()
@@ -117,12 +141,14 @@ public class OrderServiceImpl implements OrderService {
                     .amount(item.getAmount())
                     .address(request.getAddress())
                     .orderItemStatus(OrderItemStatus.PENDING)
+                    .transactionId(transaction.getId())
                     .deleted(Boolean.FALSE)
                     .build();
 
             orderItems.add(orderItem);
         });
 
+        transactionRepository.save(transaction);
         orderItemRepository.saveAll(orderItems);
 
         return orderItems;

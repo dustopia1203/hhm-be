@@ -17,7 +17,7 @@ public interface OrderService {
 
     PageDTO<OrderItemResponse> searchMyShopOrderItem(OrderItemSearchRequest request);
 
-    List<OrderItem> createMy(OrderCreateRequest request);
+    List<OrderItem> codPaymentMyOrder(OrderCreateRequest request);
 
     void refundMy(UUID id, RefundRequest request);
 

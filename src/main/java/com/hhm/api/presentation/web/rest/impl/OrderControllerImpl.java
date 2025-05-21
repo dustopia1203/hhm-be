@@ -36,8 +36,8 @@ public class OrderControllerImpl implements OrderController {
     }
 
     @Override
-    public Response<List<OrderItem>> createMy(OrderCreateRequest request) {
-        return Response.of(orderService.createMy(request));
+    public Response<List<OrderItem>> codPaymentMyOrder(OrderCreateRequest request) {
+        return Response.of(orderService.codPaymentMyOrder(request));
     }
 
     @Override

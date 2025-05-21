@@ -71,7 +71,7 @@ public class ShopControllerImpl implements ShopController {
 
     @Override
     public Response<Refund> getMyShopRefund(UUID orderId) {
-        return null;
+        return Response.of(shopService.getMyShopRefund(orderId));
     }
 
     @Override
