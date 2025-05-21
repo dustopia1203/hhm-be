@@ -113,6 +113,7 @@ public class OrderServiceImpl implements OrderService {
                     .shopId(product.getShopId())
                     .shippingId(shipping.getId())
                     .price(item.getPrice())
+                    .shippingPrice(shipping.getPrice())
                     .amount(item.getAmount())
                     .address(request.getAddress())
                     .orderItemStatus(OrderItemStatus.PENDING)

@@ -26,6 +26,7 @@ import java.util.UUID;
                 @Index(name = "order_item_product_id_idx", columnList = "product_id"),
                 @Index(name = "order_item_shop_id_idx", columnList = "shop_id"),
                 @Index(name = "order_item_shipping_id_idx", columnList = "shipping_id"),
+                @Index(name = "order_item_transaction_id_idx", columnList = "transaction_id"),
                 @Index(name = "order_item_deleted_idx", columnList = "deleted"),
         }
 )
@@ -55,6 +56,9 @@ public class OrderItem extends AuditableEntity {
     private BigDecimal price;
 
     @Column(nullable = false)
+    private BigDecimal shippingPrice;
+
+    @Column(nullable = false)
     private Integer amount;
 
     @Column(nullable = false)
@@ -63,6 +67,9 @@ public class OrderItem extends AuditableEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private OrderItemStatus orderItemStatus;
+
+    @Column(nullable = false)
+    private UUID transactionId;
 
     @Column(nullable = false)
     private Boolean deleted;

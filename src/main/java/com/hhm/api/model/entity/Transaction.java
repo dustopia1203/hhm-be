@@ -1,5 +1,6 @@
 package com.hhm.api.model.entity;
 
+import com.hhm.api.support.enums.PaymentMethod;
 import com.hhm.api.support.enums.TransactionStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,10 +45,14 @@ public class Transaction extends AuditableEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private TransactionStatus transactionStatus;
 
-    @Column()
-    private String referenceContent;
+    @Column(nullable = false)
+    private String referenceContext;
 
     @Column(nullable = false)
     private Boolean deleted;
