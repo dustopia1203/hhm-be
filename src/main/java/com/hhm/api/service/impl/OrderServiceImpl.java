@@ -115,7 +115,7 @@ public class OrderServiceImpl implements OrderService {
                 .paymentMethod(PaymentMethod.CASH)
                 .transactionStatus(TransactionStatus.PENDING)
                 .transactionType(TransactionType.IN)
-                .referenceContext(RandomStringUtils.random(10))
+                .referenceContext(RandomStringUtils.randomAlphabetic(10))
                 .deleted(Boolean.FALSE)
                 .build();
 

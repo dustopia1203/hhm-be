@@ -250,7 +250,7 @@ public class ShopServiceImpl implements ShopService {
                 .amount(orderItem.getPrice())
                 .transactionStatus(TransactionStatus.DONE)
                 .transactionType(TransactionType.OUT)
-                .referenceContext(RandomStringUtils.random(10))
+                .referenceContext(RandomStringUtils.randomAlphabetic(10))
                 .deleted(Boolean.FALSE)
                 .build();
 
