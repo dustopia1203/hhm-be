@@ -5,6 +5,7 @@ import com.hhm.api.model.dto.request.ReviewCreateRequest;
 import com.hhm.api.model.dto.request.ReviewSearchRequest;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
+import com.hhm.api.model.dto.response.ReviewResponse;
 import com.hhm.api.model.entity.Review;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public interface ReviewController {
     @Operation(summary = "Search reviews")
     @GetMapping("/q")
-    PagingResponse<Review> search(@ValidatePaging(sortModel = Review.class) ReviewSearchRequest request);
+    PagingResponse<ReviewResponse> search(@ValidatePaging(sortModel = Review.class) ReviewSearchRequest request);
 
     @Operation(summary = "Create my review")
     @PostMapping("/my")

@@ -4,6 +4,7 @@ import com.hhm.api.model.dto.request.ReviewCreateRequest;
 import com.hhm.api.model.dto.request.ReviewSearchRequest;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
+import com.hhm.api.model.dto.response.ReviewResponse;
 import com.hhm.api.model.entity.Review;
 import com.hhm.api.presentation.web.rest.ReviewController;
 import com.hhm.api.service.ReviewService;
@@ -16,7 +17,7 @@ public class ReviewControllerImpl implements ReviewController {
     private final ReviewService reviewService;
 
     @Override
-    public PagingResponse<Review> search(ReviewSearchRequest request) {
+    public PagingResponse<ReviewResponse> search(ReviewSearchRequest request) {
         return PagingResponse.of(reviewService.search(request));
     }
 
