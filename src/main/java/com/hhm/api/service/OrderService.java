@@ -4,6 +4,7 @@ import com.hhm.api.model.dto.PageDTO;
 import com.hhm.api.model.dto.request.OrderCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemSearchRequest;
 import com.hhm.api.model.dto.request.RefundRequest;
+import com.hhm.api.model.dto.request.VNPayOrderCreateRequest;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.entity.OrderItem;
 
@@ -18,6 +19,8 @@ public interface OrderService {
     PageDTO<OrderItemResponse> searchMyShopOrderItem(OrderItemSearchRequest request);
 
     List<OrderItem> codPaymentMyOrder(OrderCreateRequest request);
+
+    List<OrderItem> vnPayPaymentMyOrder(VNPayOrderCreateRequest request);
 
     void refundMy(UUID id, RefundRequest request);
 

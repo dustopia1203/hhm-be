@@ -6,6 +6,7 @@ import com.hhm.api.model.dto.request.OrderCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemSearchRequest;
 import com.hhm.api.model.dto.request.RefundRequest;
+import com.hhm.api.model.dto.request.VNPayOrderCreateRequest;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.entity.OrderItem;
 import com.hhm.api.model.entity.Product;
@@ -86,72 +87,13 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public List<OrderItem> codPaymentMyOrder(OrderCreateRequest request) {
-        UUID userId = SecurityUtils.getCurrentUserId();
+        return createOrder(request, PaymentMethod.CASH, null);
+    }
 
-        Optional<Shipping> shippingOptional = shippingRepository.findById(request.getShippingId());
-
-        if (shippingOptional.isEmpty()) {
-            throw new ResponseException(NotFoundError.SHIPPING_NOT_FOUND);
-        }
-
-        Shipping shipping = shippingOptional.get();
-
-        List<UUID> productIds = request.getOrderItemCreateRequests().stream()
-                .map(OrderItemCreateRequest::getProductId)
-                .toList();
-
-        List<Product> products = productRepository.findByIds(productIds);
-
-        List<OrderItem> orderItems = new ArrayList<>();
-
-        BigDecimal totalAmount = request.getOrderItemCreateRequests().stream()
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getAmount())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        Transaction transaction = Transaction.builder()
-                .id(IdUtils.nextId())
-                .userId(userId)
-                .amount(totalAmount)
-                .paymentMethod(PaymentMethod.CASH)
-                .transactionStatus(TransactionStatus.PENDING)
-                .transactionType(TransactionType.IN)
-                .referenceContext(RandomStringUtils.randomAlphabetic(10))
-                .deleted(Boolean.FALSE)
-                .build();
-
-        request.getOrderItemCreateRequests().forEach(item -> {
-            Optional<Product> productOptional = products.stream()
-                    .filter(product -> Objects.equals(product.getId(), item.getProductId()))
-                    .findFirst();
-
-            if (productOptional.isEmpty()) {
-                throw new ResponseException(NotFoundError.PRODUCT_NOT_FOUND);
-            }
-
-            Product product = productOptional.get();
-
-            OrderItem orderItem = OrderItem.builder()
-                    .id(IdUtils.nextId())
-                    .userId(userId)
-                    .productId(product.getId())
-                    .shopId(product.getShopId())
-                    .shippingId(shipping.getId())
-                    .price(item.getPrice())
-                    .shippingPrice(shipping.getPrice())
-                    .amount(item.getAmount())
-                    .address(request.getAddress())
-                    .orderItemStatus(OrderItemStatus.PENDING)
-                    .transactionId(transaction.getId())
-                    .deleted(Boolean.FALSE)
-                    .build();
-
-            orderItems.add(orderItem);
-        });
-
-        transactionRepository.save(transaction);
-        orderItemRepository.saveAll(orderItems);
-
-        return orderItems;
+    @Override
+    @Transactional
+    public List<OrderItem> vnPayPaymentMyOrder(VNPayOrderCreateRequest request) {
+        return createOrder(request, PaymentMethod.VN_PAY, request.getTransactionNumber());
     }
 
     @Override
@@ -256,5 +198,74 @@ public class OrderServiceImpl implements OrderService {
         }
 
         return orderItemOptional.get();
+    }
+
+    private List<OrderItem> createOrder(OrderCreateRequest request, PaymentMethod paymentMethod, String referenceContext) {
+        UUID userId = SecurityUtils.getCurrentUserId();
+
+        Optional<Shipping> shippingOptional = shippingRepository.findById(request.getShippingId());
+
+        if (shippingOptional.isEmpty()) {
+            throw new ResponseException(NotFoundError.SHIPPING_NOT_FOUND);
+        }
+
+        Shipping shipping = shippingOptional.get();
+
+        List<UUID> productIds = request.getOrderItemCreateRequests().stream()
+                .map(OrderItemCreateRequest::getProductId)
+                .toList();
+
+        List<Product> products = productRepository.findByIds(productIds);
+
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        BigDecimal totalAmount = request.getOrderItemCreateRequests().stream()
+                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getAmount())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        Transaction transaction = Transaction.builder()
+                .id(IdUtils.nextId())
+                .userId(userId)
+                .amount(totalAmount)
+                .paymentMethod(paymentMethod)
+                .transactionStatus(TransactionStatus.PENDING)
+                .transactionType(TransactionType.IN)
+                .referenceContext(referenceContext.isBlank() ? RandomStringUtils.randomAlphabetic(10) : referenceContext)
+                .deleted(Boolean.FALSE)
+                .build();
+
+        request.getOrderItemCreateRequests().forEach(item -> {
+            Optional<Product> productOptional = products.stream()
+                    .filter(product -> Objects.equals(product.getId(), item.getProductId()))
+                    .findFirst();
+
+            if (productOptional.isEmpty()) {
+                throw new ResponseException(NotFoundError.PRODUCT_NOT_FOUND);
+            }
+
+            Product product = productOptional.get();
+
+            OrderItem orderItem = OrderItem.builder()
+                    .id(IdUtils.nextId())
+                    .userId(userId)
+                    .productId(product.getId())
+                    .shopId(product.getShopId())
+                    .shippingId(shipping.getId())
+                    .price(item.getPrice())
+                    .shippingPrice(shipping.getPrice())
+                    .amount(item.getAmount())
+                    .address(request.getAddress())
+                    .orderItemStatus(OrderItemStatus.PENDING)
+                    .transactionId(transaction.getId())
+                    .deleted(Boolean.FALSE)
+                    .build();
+
+            orderItems.add(orderItem);
+        });
+
+        transactionRepository.save(transaction);
+        orderItemRepository.saveAll(orderItems);
+
+        return orderItems;
     }
 }
