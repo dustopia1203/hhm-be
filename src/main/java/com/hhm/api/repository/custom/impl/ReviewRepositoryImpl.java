@@ -52,40 +52,40 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     private String createCriteriaQuery(ReviewSearchRequest request, Map<String, Object> values) {
         StringBuilder criteriaQuery = new StringBuilder("WHERE 1 = 1 ");
 
-        criteriaQuery.append("AND s.deleted = FALSE ");
+        criteriaQuery.append("AND r.deleted = FALSE ");
 
         if (Objects.nonNull(request.getKeyword())) {
-            criteriaQuery.append("AND (s.description LIKE :keyword) ");
+            criteriaQuery.append("AND (r.description LIKE :keyword) ");
 
             values.put("keyword", QueryUtils.encodeLikeString(request.getKeyword()));
         }
 
         if (!CollectionUtils.isEmpty(request.getUserIds())) {
-            criteriaQuery.append("AND s.userId IN :userIds ");
+            criteriaQuery.append("AND r.userId IN :userIds ");
 
             values.put("userIds", request.getUserIds());
         }
 
         if (!CollectionUtils.isEmpty(request.getShopIds())) {
-            criteriaQuery.append("AND s.shopId IN :shopIds ");
+            criteriaQuery.append("AND r.shopId IN :shopIds ");
 
             values.put("shopIds", request.getShopIds());
         }
 
         if (!CollectionUtils.isEmpty(request.getOrderItemIds())) {
-            criteriaQuery.append("AND s.orderItemId IN :orderItemIds ");
+            criteriaQuery.append("AND r.orderItemId IN :orderItemIds ");
 
             values.put("orderItemIds", request.getOrderItemIds());
         }
 
         if (!CollectionUtils.isEmpty(request.getProductIds())) {
-            criteriaQuery.append("AND s.productId IN :productIds ");
+            criteriaQuery.append("AND r.productId IN :productIds ");
 
             values.put("productIds", request.getProductIds());
         }
 
         if (Objects.nonNull(request.getRating())) {
-            criteriaQuery.append("AND s.rating = :rating ");
+            criteriaQuery.append("AND r.rating = :rating ");
 
             values.put("rating", request.getRating());
         }

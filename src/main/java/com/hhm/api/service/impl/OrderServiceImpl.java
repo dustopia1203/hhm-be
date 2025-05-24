@@ -112,6 +112,7 @@ public class OrderServiceImpl implements OrderService {
                 .orderItemId(id)
                 .reason(request.getReason())
                 .images(request.getImages())
+                .deleted(Boolean.FALSE)
                 .build();
 
         refundRepository.save(refund);

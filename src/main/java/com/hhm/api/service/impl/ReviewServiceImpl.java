@@ -5,15 +5,22 @@ import com.hhm.api.model.dto.mapper.AutoMapper;
 import com.hhm.api.model.dto.request.ReviewCreateRequest;
 import com.hhm.api.model.dto.request.ReviewSearchRequest;
 import com.hhm.api.model.dto.response.ReviewResponse;
+import com.hhm.api.model.entity.OrderItem;
 import com.hhm.api.model.entity.Review;
 import com.hhm.api.model.entity.User;
 import com.hhm.api.model.entity.UserInformation;
+import com.hhm.api.repository.OrderItemRepository;
 import com.hhm.api.repository.ReviewRepository;
 import com.hhm.api.repository.UserInformationRepository;
 import com.hhm.api.repository.UserRepository;
 import com.hhm.api.service.ReviewService;
+import com.hhm.api.support.enums.OrderItemStatus;
+import com.hhm.api.support.enums.error.AuthorizationError;
 import com.hhm.api.support.enums.error.NotFoundError;
 import com.hhm.api.support.exception.ResponseException;
+import com.hhm.api.support.util.IdUtils;
+import com.hhm.api.support.util.SecurityUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +37,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserRepository userRepository;
     private final UserInformationRepository userInformationRepository;
     private final AutoMapper autoMapper;
+    private final OrderItemRepository orderItemRepository;
 
     @Override
     public PageDTO<ReviewResponse> search(ReviewSearchRequest request) {
@@ -54,7 +62,9 @@ public class ReviewServiceImpl implements ReviewService {
         reviews.forEach(review -> {
             ReviewResponse response = autoMapper.toResponse(review);
 
-            response.setImages(review.getContentUrls().split(";"));
+            if (Objects.nonNull(review.getContentUrls())) {
+                response.setImages(review.getContentUrls().split(";"));
+            }
 
             Optional<User> userOptional = users.stream()
                     .filter(user -> Objects.equals(user.getId(), review.getUserId()))
@@ -81,7 +91,39 @@ public class ReviewServiceImpl implements ReviewService {
     }
 
     @Override
+    @Transactional
     public Review createMy(ReviewCreateRequest request) {
-        return null;
+        UUID userId = SecurityUtils.getCurrentUserId();
+
+        Optional<OrderItem> orderItemOptional = orderItemRepository.findById(request.getOrderItemId());
+
+        if (orderItemOptional.isEmpty()) {
+            throw new ResponseException(NotFoundError.ORDER_ITEM_NOT_FOUND);
+        }
+
+        OrderItem orderItem = orderItemOptional.get();
+
+        if (!Objects.equals(orderItem.getUserId(), userId)) {
+            throw new ResponseException(AuthorizationError.ACCESS_DENIED);
+        }
+
+        Review review = Review.builder()
+                .id(IdUtils.nextId())
+                .userId(userId)
+                .shopId(orderItem.getShopId())
+                .productId(orderItem.getProductId())
+                .orderItemId(orderItem.getId())
+                .rating(request.getRating())
+                .description(request.getDescription())
+                .contentUrls(request.getContentUrls())
+                .deleted(Boolean.FALSE)
+                .build();
+
+        orderItem.setOrderItemStatus(OrderItemStatus.REVIEWED);
+
+        reviewRepository.save(review);
+        orderItemRepository.save(orderItem);
+
+        return review;
     }
 }
