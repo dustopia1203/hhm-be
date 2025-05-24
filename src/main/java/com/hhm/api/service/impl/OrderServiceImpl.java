@@ -115,7 +115,6 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         refundRepository.save(refund);
-
         orderItemRepository.save(orderItem);
     }
 
