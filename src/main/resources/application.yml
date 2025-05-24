@@ -56,5 +56,5 @@ vnpay:
   tmn-code: Y0ZE5LJM
   hash-secret: N8128FVPMFYYGQFIF9BUNPOP4GJGLKUE
   url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
-  return-url: http://localhost:5173/vnpay-callback
+  return-url: http://localhost:5173/payment/vnpay-callback
   expired-time: ${PAYMENT_EXPIRE:1m}

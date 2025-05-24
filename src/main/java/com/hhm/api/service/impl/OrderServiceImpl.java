@@ -230,7 +230,7 @@ public class OrderServiceImpl implements OrderService {
                 .paymentMethod(paymentMethod)
                 .transactionStatus(TransactionStatus.PENDING)
                 .transactionType(TransactionType.IN)
-                .referenceContext(referenceContext.isBlank() ? RandomStringUtils.randomAlphabetic(10) : referenceContext)
+                .referenceContext(Objects.isNull(referenceContext) ? RandomStringUtils.randomAlphabetic(10) : referenceContext)
                 .deleted(Boolean.FALSE)
                 .build();
 

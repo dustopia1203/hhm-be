@@ -44,7 +44,7 @@ public interface OrderController {
     @PostMapping("/my/payment/cod")
     Response<List<OrderItem>> codPaymentMyOrder(@Valid @RequestBody OrderCreateRequest request);
 
-    @Operation(summary = "COD payment for my order")
+    @Operation(summary = "VNPay payment for my order")
     @PostMapping("/my/payment/vnpay")
     Response<List<OrderItem>> vnPayPaymentMyOrder(@Valid @RequestBody VNPayOrderCreateRequest request);
 
