@@ -84,10 +84,10 @@ public class OrderItemRepositoryImpl implements OrderItemRepositoryCustom {
             values.put("shippingIds", request.getShippingIds());
         }
 
-        if (Objects.nonNull(request.getOrderItemStatus())) {
-            criteriaQuery.append("AND oi.orderItemStatus = :orderItemStatus ");
+        if (!CollectionUtils.isEmpty(request.getOrderItemStatuses())) {
+            criteriaQuery.append("AND oi.orderItemStatus IN :orderItemStatuses ");
 
-            values.put("orderItemStatus", request.getOrderItemStatus());
+            values.put("orderItemStatuses", request.getOrderItemStatuses());
         }
 
         return criteriaQuery.toString();

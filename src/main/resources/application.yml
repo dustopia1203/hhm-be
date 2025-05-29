@@ -17,6 +17,7 @@ spring:
       write-dates-as-timestamps: true
       write-date-timestamps-as-nanoseconds: false
     default-property-inclusion: non_null
+    time-zone: Asia/Ho_Chi_Minh
   cache:
     type: redis
     redis:
@@ -53,3 +54,10 @@ security:
 elasticsearch:
   host: localhost
   port: 9200
+vnpay:
+  version: 2.1.0
+  tmn-code: Y0ZE5LJM
+  hash-secret: N8128FVPMFYYGQFIF9BUNPOP4GJGLKUE
+  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:5173/payment/vnpay-callback
+  expired-time: ${PAYMENT_EXPIRE:1m}

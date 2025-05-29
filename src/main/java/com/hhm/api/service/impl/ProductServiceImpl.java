@@ -13,6 +13,7 @@ import com.hhm.api.model.entity.Product;
 import com.hhm.api.model.entity.Shop;
 import com.hhm.api.model.entity.projection.ReviewStat;
 import com.hhm.api.repository.CategoryRepository;
+import com.hhm.api.repository.OrderItemRepository;
 import com.hhm.api.repository.ProductRepository;
 import com.hhm.api.repository.ReviewRepository;
 import com.hhm.api.repository.ShopRepository;
@@ -44,6 +45,7 @@ public class ProductServiceImpl implements ProductService {
     private final AutoMapper autoMapper;
     private final ReviewRepository reviewRepository;
     private final ProductElasticsearchRepository productElasticsearchRepository;
+    private final OrderItemRepository orderItemRepository;
 
     @Override
     public PageDTO<Product> search(ProductSearchRequest request) {
@@ -52,8 +54,6 @@ public class ProductServiceImpl implements ProductService {
         if (Objects.equals(count, 0L)) {
             return PageDTO.empty(request.getPageIndex(), request.getPageSize());
         }
-
-
 
         List<Product> products = productRepository.search(request);
 
@@ -72,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
 
         ProductResponse response = autoMapper.toResponse(product);
 
-        response.setSoldCount(0);
+        response.setSoldCount(Math.toIntExact(orderItemRepository.countByProduct(product.getId())));
 
         List<String> images = List.of(product.getContentUrls().split(";"));
 

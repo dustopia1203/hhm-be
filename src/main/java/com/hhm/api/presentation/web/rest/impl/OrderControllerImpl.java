@@ -2,6 +2,8 @@ package com.hhm.api.presentation.web.rest.impl;
 
 import com.hhm.api.model.dto.request.OrderCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemSearchRequest;
+import com.hhm.api.model.dto.request.RefundRequest;
+import com.hhm.api.model.dto.request.VNPayOrderCreateRequest;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
@@ -35,13 +37,18 @@ public class OrderControllerImpl implements OrderController {
     }
 
     @Override
-    public Response<List<OrderItem>> createMy(OrderCreateRequest request) {
-        return Response.of(orderService.createMy(request));
+    public Response<List<OrderItem>> codPaymentMyOrder(OrderCreateRequest request) {
+        return Response.of(orderService.codPaymentMyOrder(request));
     }
 
     @Override
-    public Response<Boolean> refundMy(UUID id) {
-        orderService.refundMy(id);
+    public Response<List<OrderItem>> vnPayPaymentMyOrder(VNPayOrderCreateRequest request) {
+        return Response.of(orderService.vnPayPaymentMyOrder(request));
+    }
+
+    @Override
+    public Response<Boolean> refundMy(UUID id, RefundRequest request) {
+        orderService.refundMy(id, request);
         return Response.ok();
     }
 

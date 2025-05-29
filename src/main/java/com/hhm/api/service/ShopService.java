@@ -5,6 +5,7 @@ import com.hhm.api.model.dto.request.IdsRequest;
 import com.hhm.api.model.dto.request.ShopCreateOrUpdateRequest;
 import com.hhm.api.model.dto.request.ShopSearchRequest;
 import com.hhm.api.model.dto.response.ShopDetailResponse;
+import com.hhm.api.model.entity.Refund;
 import com.hhm.api.model.entity.Shop;
 
 import java.util.UUID;
@@ -26,7 +27,9 @@ public interface ShopService {
 
     void delete(IdsRequest request);
 
-    void confirmMyShopOrder(UUID orderId);
+    void confirmMyShopOrder(UUID orderItemId);
 
-    void confirmMyShopRefund(UUID orderId);
+    Refund getMyShopRefund(UUID orderItemId);
+
+    void confirmMyShopRefund(UUID orderItemId);
 }

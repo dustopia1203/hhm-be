@@ -13,6 +13,7 @@ public enum NotFoundError implements ResponseError {
     CART_ITEM_NOT_FOUND(404006,"Cart item not found"),
     SHIPPING_NOT_FOUND(404007, "Shipping not found"),
     ORDER_ITEM_NOT_FOUND(404008, "Order item not found"),
+    REFUND_NOT_FOUND(404009, "Refund not found"),
     ;
 
     private final int code;
