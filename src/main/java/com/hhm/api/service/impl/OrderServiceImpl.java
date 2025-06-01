@@ -234,7 +234,7 @@ public class OrderServiceImpl implements OrderService {
                 .userId(userId)
                 .amount(totalAmount)
                 .paymentMethod(paymentMethod)
-                .transactionStatus(TransactionStatus.PENDING)
+                .transactionStatus(TransactionStatus.DONE)
                 .transactionType(TransactionType.IN)
                 .referenceContext(Objects.isNull(referenceContext) ? RandomStringUtils.randomAlphabetic(10) : referenceContext)
                 .deleted(Boolean.FALSE)
