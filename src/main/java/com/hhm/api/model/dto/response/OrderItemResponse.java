@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -22,4 +23,5 @@ public class OrderItemResponse {
     private OrderItemStatus orderItemStatus;
     private String productName;
     private String productImage;
+    private Instant createdAt;
 }

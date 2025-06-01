@@ -6,6 +6,7 @@ import com.hhm.api.model.dto.request.OrderCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemSearchRequest;
 import com.hhm.api.model.dto.request.RefundRequest;
+import com.hhm.api.model.dto.request.SolanaOrderCreateRequest;
 import com.hhm.api.model.dto.request.VNPayOrderCreateRequest;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.entity.OrderItem;
@@ -94,6 +95,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public List<OrderItem> vnPayPaymentMyOrder(VNPayOrderCreateRequest request) {
         return createOrder(request, PaymentMethod.VN_PAY, request.getTransactionNumber());
+    }
+
+    @Override
+    public List<OrderItem> solanaPaymentMyOrder(SolanaOrderCreateRequest request) {
+        return createOrder(request, PaymentMethod.CRYPTO, request.getReference());
     }
 
     @Override

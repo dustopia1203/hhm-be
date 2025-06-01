@@ -26,7 +26,8 @@ public interface Constants {
     enum DefaultRole {
         MANAGER(Map.of(ResourceCode.ALL, List.of(Permission.MANAGE))),
         MEMBER(Map.of(
-                ResourceCode.ACCOUNT, List.of(Permission.SELF_CREATE, Permission.SELF_READ, Permission.SELF_UPDATE)
+                ResourceCode.ACCOUNT, List.of(Permission.SELF_CREATE, Permission.SELF_READ, Permission.SELF_UPDATE),
+                ResourceCode.SHOP, List.of(Permission.SELF_CREATE, Permission.SELF_UPDATE)
         )),
         ;
 
