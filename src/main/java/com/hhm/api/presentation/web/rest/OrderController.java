@@ -4,6 +4,7 @@ import com.hhm.api.config.application.validator.ValidatePaging;
 import com.hhm.api.model.dto.request.OrderCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemSearchRequest;
 import com.hhm.api.model.dto.request.RefundRequest;
+import com.hhm.api.model.dto.request.SolanaOrderCreateRequest;
 import com.hhm.api.model.dto.request.VNPayOrderCreateRequest;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.dto.response.PagingResponse;
@@ -47,6 +48,10 @@ public interface OrderController {
     @Operation(summary = "VNPay payment for my order")
     @PostMapping("/my/payment/vnpay")
     Response<List<OrderItem>> vnPayPaymentMyOrder(@Valid @RequestBody VNPayOrderCreateRequest request);
+
+    @Operation(summary = "Solana payment for my order")
+    @PostMapping("/my/payment/solana")
+    Response<List<OrderItem>> solanaPaymentMyOrder(@Valid @RequestBody SolanaOrderCreateRequest request);
 
     @Operation(summary = "Refund my order")
     @PostMapping("/my/{id}/refund")

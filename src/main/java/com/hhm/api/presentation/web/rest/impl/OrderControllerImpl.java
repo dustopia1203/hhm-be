@@ -3,6 +3,7 @@ package com.hhm.api.presentation.web.rest.impl;
 import com.hhm.api.model.dto.request.OrderCreateRequest;
 import com.hhm.api.model.dto.request.OrderItemSearchRequest;
 import com.hhm.api.model.dto.request.RefundRequest;
+import com.hhm.api.model.dto.request.SolanaOrderCreateRequest;
 import com.hhm.api.model.dto.request.VNPayOrderCreateRequest;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.dto.response.PagingResponse;
@@ -44,6 +45,11 @@ public class OrderControllerImpl implements OrderController {
     @Override
     public Response<List<OrderItem>> vnPayPaymentMyOrder(VNPayOrderCreateRequest request) {
         return Response.of(orderService.vnPayPaymentMyOrder(request));
+    }
+
+    @Override
+    public Response<List<OrderItem>> solanaPaymentMyOrder(SolanaOrderCreateRequest request) {
+        return Response.of(orderService.solanaPaymentMyOrder(request));
     }
 
     @Override
