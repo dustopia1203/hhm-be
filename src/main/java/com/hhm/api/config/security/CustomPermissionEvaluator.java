@@ -23,9 +23,10 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
                         String resourceCode = userPermission.split(":")[0].toUpperCase();
                         String action = userPermission.split(":")[1].toUpperCase();
 
-                        return (Objects.equals(resourceCode, requiredResourceCode) && Objects.equals(action, requiredAction))
-                                || (Objects.equals(resourceCode, "ALL") && Objects.equals(action, requiredAction))
-                                || (Objects.equals(resourceCode, requiredResourceCode) && Objects.equals(action, "MANAGE"));
+                        return Objects.equals(resourceCode, requiredResourceCode) && Objects.equals(action, requiredAction)
+                                || Objects.equals(resourceCode, "ALL") && Objects.equals(action, requiredAction)
+                                || Objects.equals(resourceCode, requiredResourceCode) && Objects.equals(action, "MANAGE")
+                                || Objects.equals(resourceCode, "ALL") && Objects.equals(action, "MANAGE");
                     });
         } else {
             throw new ResponseException(AuthorizationError.UNSUPPORTED_AUTHENTICATION);

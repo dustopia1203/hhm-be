@@ -11,6 +11,17 @@ public enum BadRequestError implements ResponseError {
     EMAIL_EXISTED(400003, "Email existed"),
     USER_WAS_INACTIVATED(400004, "User was inactivated"),
     USER_WAS_ACTIVATED(400005, "User was activated"),
+    INVALID_PARENT_CATEGORY(400006, "Invalid parent category"),
+    CATEGORY_WAS_ACTIVATED(400007, "Category was activated"),
+    CATEGORY_WAS_INACTIVATED(400008, "Category was inactivated"),
+    SHOP_WAS_ACTIVATED(400009, "Shop was activated"),
+    SHOP_WAS_INACTIVATED(400010, "Shop was inactivated"),
+    PRODUCT_WAS_ACTIVATED(400011, "Product was activated"),
+    PRODUCT_WAS_INACTIVATED(400012, "Product was inactivated"),
+    USER_ALREADY_HAS_SHOP(400013, "User already has shop"),
+    SHIPPING_WAS_ACTIVATED(400014, "Shipping was activated"),
+    SHIPPING_WAS_INACTIVATED(400014, "Shipping was inactivated"),
+    ORDER_ITEM_ACTION_INVALID(400015, "Order item action invalid"),
     ;
 
     private final int code;

@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
@@ -19,7 +20,12 @@ import lombok.experimental.SuperBuilder;
 import java.util.UUID;
 
 @Entity
-@Table(name = "user")
+@Table(
+        name = "users",
+        indexes = {
+                @Index(name = "users_deleted_idx", columnList = "deleted"),
+        }
+)
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
@@ -27,13 +33,13 @@ import java.util.UUID;
 @AllArgsConstructor
 public class User extends AuditableEntity {
     @Id
-    @Column
+    @Column()
     private UUID id;
 
     @Column(length = ValidateConstraint.Length.USERNAME_MAX_LENGTH, unique = true, nullable = false)
     private String username;
 
-    @Column(length = ValidateConstraint.Length.EMAIL_MAX_LENGTH, unique = true,  nullable = false)
+    @Column(length = ValidateConstraint.Length.EMAIL_MAX_LENGTH, unique = true, nullable = false)
     private String email;
 
     @Column(nullable = false)

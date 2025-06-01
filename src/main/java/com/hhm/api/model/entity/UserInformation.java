@@ -23,7 +23,8 @@ import java.util.UUID;
 @Table(
         name = "user_information",
         indexes = {
-                @Index(name = "user_information_user_id_idx", columnList = "user_id")
+                @Index(name = "user_information_user_id_idx", columnList = "user_id"),
+                @Index(name = "user_information_deleted_idx", columnList = "deleted"),
         }
 )
 @EqualsAndHashCode(callSuper = true)
@@ -53,6 +54,9 @@ public class UserInformation extends AuditableEntity {
 
     @Column()
     private Instant dateOfBirth;
+
+    @Column()
+    private String avatarUrl;
 
     @Column()
     @Enumerated(EnumType.STRING)

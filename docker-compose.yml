@@ -1,20 +1,19 @@
 services:
   db:
     container_name: hhm_db
-    image: mysql
+    image: postgres
     environment:
-      MYSQL_ROOT_PASSWORD: Admin123@
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: Admin123@
-      MYSQL_DATABASE: hhmshop
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: Admin123@
+      POSTGRES_DB: hhmshop
     volumes:
-      - ./.docker-data/db:/var/lib/mysql
+      - ./.docker-data/db:/var/lib/postgresql/data
     ports:
-      - "3306:3306"
+      - "5432:5432"
     networks:
       - db
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
       interval: 30s
       timeout: 10s
       retries: 5

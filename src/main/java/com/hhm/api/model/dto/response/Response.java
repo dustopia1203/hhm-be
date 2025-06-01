@@ -34,7 +34,7 @@ public class Response<T> implements Serializable {
         return response.success();
     }
 
-    private Response<T> success() {
+    protected Response<T> success() {
         success = true;
         code = 200;
         status = ResponseStatus.SUCCESS.name();

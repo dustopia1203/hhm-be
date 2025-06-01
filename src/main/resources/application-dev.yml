@@ -11,7 +11,7 @@ spring:
       repositories:
         enabled: false
   datasource:
-    url: ${DB_URL:jdbc:mysql://localhost:3306/hhmshop}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/hhmshop}
     username: ${DB_USERNAME:admin}
     password: ${DB_PASSWORD:Admin123@}
   mail:
@@ -32,3 +32,12 @@ springdoc:
 
 app:
   active-account-url: ${ACTIVE_ACCOUNT_URL:http://localhost:5173/account/active}
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+scheduler:
+  clear-expired-refund: "0 * * * * *"
+  complete-finished-order: "0 * * * * *"
+  cancel-pending-order: "0 * * * * *"

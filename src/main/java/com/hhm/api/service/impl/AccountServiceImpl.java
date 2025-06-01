@@ -3,15 +3,25 @@ package com.hhm.api.service.impl;
 import com.hhm.api.config.properties.AuthenticationProperties;
 import com.hhm.api.config.security.CustomUserAuthentication;
 import com.hhm.api.config.security.TokenProvider;
+import com.hhm.api.model.dto.UserAuthority;
+import com.hhm.api.model.dto.mapper.AutoMapper;
 import com.hhm.api.model.dto.request.ActiveAccountRequest;
 import com.hhm.api.model.dto.request.AuthenticateRequest;
 import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
+import com.hhm.api.model.dto.response.ProfileResponse;
+import com.hhm.api.model.entity.Role;
 import com.hhm.api.model.entity.User;
+import com.hhm.api.model.entity.UserInformation;
+import com.hhm.api.model.entity.UserRole;
+import com.hhm.api.repository.RoleRepository;
+import com.hhm.api.repository.UserInformationRepository;
 import com.hhm.api.repository.UserRepository;
+import com.hhm.api.repository.UserRoleRepository;
 import com.hhm.api.service.AccountService;
+import com.hhm.api.service.AuthenticationService;
 import com.hhm.api.service.CacheService;
 import com.hhm.api.service.EmailService;
 import com.hhm.api.service.TokenCacheService;
@@ -24,6 +34,7 @@ import com.hhm.api.support.enums.error.BadRequestError;
 import com.hhm.api.support.enums.error.NotFoundError;
 import com.hhm.api.support.exception.ResponseException;
 import com.hhm.api.support.util.IdUtils;
+import com.hhm.api.support.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -54,6 +65,11 @@ public class AccountServiceImpl implements AccountService {
     private final PasswordEncoder passwordEncoder;
     private final CacheService<String, String> cacheService;
     private final EmailService emailService;
+    private final AuthenticationService authenticationService;
+    private final UserInformationRepository userInformationRepository;
+    private final AutoMapper autoMapper;
+    private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
 
     @Override
     public void register(RegisterRequest request) {
@@ -78,6 +94,19 @@ public class AccountServiceImpl implements AccountService {
                 .accountType(AccountType.SYSTEM)
                 .deleted(Boolean.FALSE)
                 .build();
+
+        Role memberRole = roleRepository.findByCode(Constants.DefaultRole.MEMBER.name()).orElse(null);
+
+        if (Objects.nonNull(memberRole)) {
+            UserRole userRole = UserRole.builder()
+                    .id(IdUtils.nextId())
+                    .userId(user.getId())
+                    .roleId(memberRole.getId())
+                    .deleted(Boolean.FALSE)
+                    .build();
+
+            userRoleRepository.save(userRole);
+        }
 
         String activationOtp = RandomStringUtils.randomNumeric(6);
 
@@ -161,6 +190,8 @@ public class AccountServiceImpl implements AccountService {
 
         refreshTokenExpiresAt = Instant.now().plus(refreshTokenExpiresIn);
 
+        log.warn("User {} completed authentication", user.getUsername());
+
         return AuthenticateResponse.builder()
                 .accessToken(accessToken)
                 .accessTokenExpiresIn(accessTokenExpiresIn.toSeconds())
@@ -214,5 +245,15 @@ public class AccountServiceImpl implements AccountService {
                 .refreshTokenExpiresIn(refreshTokenExpiresIn.getSeconds())
                 .refreshTokenExpiredAt(refreshTokenExpiresAt)
                 .build();
+    }
+
+    @Override
+    public ProfileResponse getAccountProfile() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+        UserAuthority userAuthority = authenticationService.getUserAuthority(currentUserId);
+        UserInformation userInformation = userInformationRepository.findById(currentUserId).orElse(null);
+
+        return autoMapper.toResponse(userAuthority, userInformation);
     }
 }

@@ -1,6 +1,7 @@
 package com.hhm.api.repository;
 
 import com.hhm.api.model.entity.User;
+import com.hhm.api.repository.custom.UserRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.lang.NonNull;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<User, UUID> {
+public interface UserRepository extends JpaRepository<User, UUID>, UserRepositoryCustom {
     @Query("SELECT u FROM User u WHERE u.deleted = FALSE AND u.id = :id")
     @NonNull
     Optional<User> findById(@NonNull UUID id);
@@ -28,4 +29,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query("SELECT u FROM User u WHERE u.deleted = FALSE AND u.username IN :usernames")
     List<User> findByUsernames(List<String> usernames);
+
+    @Query("SELECT u FROM User u WHERE u.deleted = FALSE AND u.id IN :ids")
+    List<User> findByIds(List<UUID> ids);
 }
