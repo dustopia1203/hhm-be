@@ -10,6 +10,7 @@ import com.hhm.api.model.dto.request.AuthenticateRequest;
 import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
+import com.hhm.api.model.dto.response.AccountBalanceResponse;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.entity.Role;
@@ -17,6 +18,7 @@ import com.hhm.api.model.entity.User;
 import com.hhm.api.model.entity.UserInformation;
 import com.hhm.api.model.entity.UserRole;
 import com.hhm.api.repository.RoleRepository;
+import com.hhm.api.repository.TransactionRepository;
 import com.hhm.api.repository.UserInformationRepository;
 import com.hhm.api.repository.UserRepository;
 import com.hhm.api.repository.UserRoleRepository;
@@ -45,6 +47,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -70,6 +73,7 @@ public class AccountServiceImpl implements AccountService {
     private final AutoMapper autoMapper;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
+    private final TransactionRepository transactionRepository;
 
     @Override
     public void register(RegisterRequest request) {
@@ -255,5 +259,16 @@ public class AccountServiceImpl implements AccountService {
         UserInformation userInformation = userInformationRepository.findById(currentUserId).orElse(null);
 
         return autoMapper.toResponse(userAuthority, userInformation);
+    }
+
+    @Override
+    public AccountBalanceResponse getAccountBalance() {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+        BigDecimal balance = transactionRepository.findUserBalance(currentUserId);
+
+        return AccountBalanceResponse.builder()
+                .balance(balance)
+                .build();
     }
 }

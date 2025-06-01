@@ -5,6 +5,7 @@ import com.hhm.api.model.dto.request.AuthenticateRequest;
 import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
+import com.hhm.api.model.dto.response.AccountBalanceResponse;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.dto.response.Response;
@@ -50,4 +51,8 @@ public interface AccountController {
     @Operation(summary = "Get account profile")
     @GetMapping("/profile")
     Response<ProfileResponse> getAccountProfile();
+
+    @Operation(summary = "Get account balance")
+    @GetMapping("/balance")
+    Response<AccountBalanceResponse> getAccountBalance();
 }
