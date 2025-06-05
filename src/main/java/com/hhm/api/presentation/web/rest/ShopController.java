@@ -7,6 +7,7 @@ import com.hhm.api.model.dto.request.ShopSearchRequest;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.model.dto.response.ShopDetailResponse;
+import com.hhm.api.model.entity.Refund;
 import com.hhm.api.model.entity.Shop;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,12 +41,12 @@ public interface ShopController {
     Response<ShopDetailResponse> getMy();
 
     @Operation(summary = "Create my shop")
-    @PostMapping("")
+    @PostMapping("/my")
     @PreAuthorize("hasPermission(null, 'SHOP:SELF_CREATE')")
     Response<Shop> createMy(@Valid @RequestBody ShopCreateOrUpdateRequest request);
 
     @Operation(summary = "Update my shop")
-    @PutMapping("")
+    @PutMapping("/my")
     @PreAuthorize("hasPermission(null, 'SHOP:SELF_UPDATE')")
     Response<Shop> updateMy(@Valid @RequestBody ShopCreateOrUpdateRequest request);
 
@@ -63,4 +64,16 @@ public interface ShopController {
     @DeleteMapping("")
     @PreAuthorize("hasPermission(null, 'SHOP:DELETE')")
     Response<Boolean> delete(@RequestBody IdsRequest request);
+
+    @Operation(summary = "Confirm my shop order")
+    @PostMapping("/my/{orderId}/confirm")
+    Response<Boolean> confirmMyShopOrder(@PathVariable UUID orderId);
+
+    @Operation(summary = "Get my shop refund request")
+    @GetMapping("/my/{orderId}/refund")
+    Response<Refund> getMyShopRefund(@PathVariable UUID orderId);
+
+    @Operation(summary = "Confirm my shop order refund request")
+    @PostMapping("/my/{orderId}/refund")
+    Response<Boolean> confirmMyShopRefund(@PathVariable UUID orderId);
 }

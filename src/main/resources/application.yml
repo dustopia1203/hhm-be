@@ -17,6 +17,7 @@ spring:
       write-dates-as-timestamps: true
       write-date-timestamps-as-nanoseconds: false
     default-property-inclusion: non_null
+    time-zone: Asia/Ho_Chi_Minh
   cache:
     type: redis
     redis:
@@ -49,6 +50,7 @@ security:
       access-token-expires-in: ${ACCESS_TOKEN_EXPIRES_IN:60m}
       refresh-token-expires-in: ${REFRESH_TOKEN_EXPIRES_IN:1d}
       refresh-token-long-expires-in: ${REFRESH_TOKEN_LONG_EXPIRES_IN:30d}
+
 google:
   client-id: 1017906156501-7em9qi30gibuj7lhtpb5k13ts20qrg7s.apps.googleusercontent.com
   client-secret: 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
@@ -65,3 +67,12 @@ facebook:
   token-url: https://graph.facebook.com/v12.0/oauth/access_token
   user-info-url: https://graph.facebook.com/me?fields=id,name,email,picture,first_name,middle_name,last_name,gender
   scope: email%20public_profile
+
+vnpay:
+  version: 2.1.0
+  tmn-code: Y0ZE5LJM
+  hash-secret: N8128FVPMFYYGQFIF9BUNPOP4GJGLKUE
+  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:5173/payment/vnpay-callback
+  expired-time: ${PAYMENT_EXPIRE:1m}
+

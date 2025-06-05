@@ -43,6 +43,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         values.forEach(query::setParameter);
 
+        query.setFirstResult((request.getPageIndex() - 1) * request.getPageSize());
+        query.setMaxResults(request.getPageSize());
+
         return query.getResultList();
     }
 

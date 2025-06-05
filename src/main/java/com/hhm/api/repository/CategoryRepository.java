@@ -38,4 +38,22 @@ public interface CategoryRepository extends JpaRepository<Category, UUID>, Categ
             """,
             nativeQuery = true)
     List<Category> findTreeByParent(UUID parentId);
+
+    @Query(
+            value = """
+                WITH RECURSIVE category_tree AS (
+                    SELECT c1.* FROM category c1 
+                        WHERE c1.deleted = FALSE AND id = :id
+                    
+                    UNION ALL
+                    
+                    SELECT c2.* FROM category c2
+                        JOIN category_tree ct ON ct.parent_id = c2.id
+                        WHERE c2.deleted = FALSE
+                )    
+            
+                SELECT * FROM category_tree
+            """,
+            nativeQuery = true)
+    List<Category> findTreeById(UUID id);
 }

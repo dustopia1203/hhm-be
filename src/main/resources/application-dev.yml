@@ -36,3 +36,8 @@ app:
 logging:
   level:
     org.springframework.security: DEBUG
+
+scheduler:
+  clear-expired-refund: "0 * * * * *"
+  complete-finished-order: "0 * * * * *"
+  cancel-pending-order: "0 * * * * *"

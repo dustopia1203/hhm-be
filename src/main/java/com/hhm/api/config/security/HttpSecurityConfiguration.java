@@ -38,8 +38,9 @@ public class HttpSecurityConfiguration {
 
     private final String[] QUERY_PUBLIC_URLS = {
             "/api/categories/**",
-            "/api/shops/**",
+            "/api/shops/{id}",
             "/api/products/**",
+            "/api/reviews/**",
     };
 
     private final String[] COMMAND_PUBLIC_URLS = {

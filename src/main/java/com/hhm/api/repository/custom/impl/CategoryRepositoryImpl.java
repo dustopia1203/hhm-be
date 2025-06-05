@@ -43,6 +43,9 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 
         values.forEach(query::setParameter);
 
+        query.setFirstResult((request.getPageIndex() - 1) * request.getPageSize());
+        query.setMaxResults(request.getPageSize());
+
         return query.getResultList();
     }
 
