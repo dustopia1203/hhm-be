@@ -22,10 +22,10 @@ public class ProductDocument {
     @Id
     private UUID id;
 
-    @Field(type = FieldType.Keyword)
+    @Field(name = "shop_id", type = FieldType.Keyword)
     private UUID shopId;
 
-    @Field(type = FieldType.Keyword)
+    @Field(name = "category_id", type = FieldType.Keyword)
     private UUID categoryId;
 
     @Field(type = FieldType.Text)
@@ -34,7 +34,7 @@ public class ProductDocument {
     @Field(type = FieldType.Text)
     private String description;
 
-    @Field(type = FieldType.Keyword)
+    @Field(name = "content_urls", type = FieldType.Keyword)
     private String contentUrls;
 
     @Field(type = FieldType.Double)

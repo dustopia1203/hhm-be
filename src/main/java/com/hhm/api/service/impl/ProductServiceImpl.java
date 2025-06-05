@@ -8,6 +8,7 @@ import com.hhm.api.model.dto.request.ProductSearchRequest;
 import com.hhm.api.model.dto.response.CategoryResponse;
 import com.hhm.api.model.dto.response.ProductResponse;
 import com.hhm.api.model.elasticsearch.ProductDocument;
+import com.hhm.api.model.elasticsearch.UserBehaviorDocument;
 import com.hhm.api.model.entity.Category;
 import com.hhm.api.model.entity.Product;
 import com.hhm.api.model.entity.Shop;
@@ -18,6 +19,7 @@ import com.hhm.api.repository.ProductRepository;
 import com.hhm.api.repository.ReviewRepository;
 import com.hhm.api.repository.ShopRepository;
 import com.hhm.api.repository.elasticsearch.ProductElasticsearchRepository;
+import com.hhm.api.service.ProductRecommendationService;
 import com.hhm.api.service.ProductService;
 import com.hhm.api.support.enums.ActiveStatus;
 import com.hhm.api.support.enums.error.AuthorizationError;
@@ -31,6 +33,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -46,9 +49,27 @@ public class ProductServiceImpl implements ProductService {
     private final ReviewRepository reviewRepository;
     private final ProductElasticsearchRepository productElasticsearchRepository;
     private final OrderItemRepository orderItemRepository;
+    private final ProductRecommendationService productRecommendationService;
 
     @Override
     public PageDTO<Product> search(ProductSearchRequest request) {
+        // Lưu lịch sử tìm kiếm nếu có userid
+        if (request.getKeyword() != null && !request.getKeyword().trim().isEmpty()) {
+            try {
+                UUID userId = SecurityUtils.getCurrentUserId();
+                UserBehaviorDocument searchBehavior = UserBehaviorDocument.builder()
+                    .userId(userId)
+                    .behaviorType("SEARCH")
+                    .searchQuery(request.getKeyword().trim())
+                    .timestamp(Instant.now())
+                    .build();
+                productRecommendationService.trackUserBehavior(searchBehavior);
+                System.out.println("lưu lại lịch sử tìm kiếm");
+            } catch (ResponseException e) {
+                // Nếu không có token hoặc token không hợp lệ thì bỏ qua, không lưu history
+                System.out.println("No valid token found, skipping search history tracking");
+            }
+        }
         Long count = productRepository.count(request);
 
         if (Objects.equals(count, 0L)) {
