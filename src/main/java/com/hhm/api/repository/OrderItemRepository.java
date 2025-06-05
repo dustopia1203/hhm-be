@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.lang.NonNull;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,4 +23,32 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, UUID>, Ord
 
     @Query("SELECT COUNT(oi) FROM OrderItem oi WHERE oi.deleted = FALSE AND oi.productId = :productId")
     Long countByProduct(UUID productId);
+
+    @Query(value = """
+        SELECT oi.*
+        FROM order_item oi
+        JOIN refund r ON oi.id = r.order_item_id
+        WHERE oi.deleted = FALSE 
+            AND oi.order_item_status = 'REFUND_PROGRESSING'
+            AND oi.last_modified_at <= now() - INTERVAL '5 days';
+    """, nativeQuery = true)
+    List<OrderItem> findAllExpiredRefund();
+
+    @Query(value = """
+        SELECT oi.*
+        FROM order_item oi
+        WHERE oi.deleted = FALSE
+            AND oi.order_item_status = 'DELIVERED'
+            AND oi.last_modified_at <= now() - INTERVAL '10 days';
+    """, nativeQuery = true)
+    List<OrderItem> findAllFinished();
+
+    @Query(value = """
+        SELECT oi.*
+        FROM order_item oi
+        WHERE oi.deleted = FALSE
+            AND oi.order_item_status = 'PENDING'
+            AND oi.last_modified_at <= now() - INTERVAL '5 days';
+    """, nativeQuery = true)
+    List<OrderItem> findAllExpiredPending();
 }

@@ -5,7 +5,11 @@ import com.hhm.api.model.dto.request.AuthenticateRequest;
 import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
+
 import com.hhm.api.model.dto.request.ResetPasswordRequest;
+
+import com.hhm.api.model.dto.response.AccountBalanceResponse;
+
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 
@@ -31,4 +35,7 @@ public interface AccountService {
     void verifyResetOtp(ActiveAccountRequest request);
 
     void resetPassword(ResetPasswordRequest request);
+
+    AccountBalanceResponse getAccountBalance();
+
 }

@@ -234,8 +234,6 @@ public class ShopServiceImpl implements ShopService {
     @Override
     @Transactional
     public void confirmMyShopRefund(UUID orderItemId) {
-        UUID userId = SecurityUtils.getCurrentUserId();
-
         OrderItem orderItem = getMyShopOrderItem(orderItemId);
 
         if (!Objects.equals(orderItem.getOrderItemStatus(), OrderItemStatus.REFUND_PROGRESSING)) {
@@ -246,7 +244,7 @@ public class ShopServiceImpl implements ShopService {
 
         Transaction transaction = Transaction.builder()
                 .id(IdUtils.nextId())
-                .userId(userId)
+                .userId(orderItem.getUserId())
                 .amount(orderItem.getPrice())
                 .transactionStatus(TransactionStatus.DONE)
                 .transactionType(TransactionType.OUT)
