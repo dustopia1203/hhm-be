@@ -5,6 +5,7 @@ import com.hhm.api.model.dto.request.AuthenticateRequest;
 import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
+import com.hhm.api.model.dto.request.ResetPasswordRequest;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.dto.response.Response;
@@ -57,5 +58,23 @@ public class AccountControllerImpl implements AccountController {
     @Override
     public Response<ProfileResponse> getAccountProfile() {
         return Response.of(accountService.getAccountProfile());
+    }
+
+    @Override
+    public Response<Boolean> forgotPassword(ResendActivationCodeRequest request) {
+        accountService.forgotPassword(request);
+        return Response.ok();
+    }
+
+    @Override
+    public Response<Boolean> verifyOTP(ActiveAccountRequest request) {
+        accountService.verifyResetOtp(request);
+        return Response.ok();
+    }
+
+    @Override
+    public Response<Boolean> resetPassword(ResetPasswordRequest request) {
+        accountService.resetPassword(request);
+        return Response.ok();
     }
 }

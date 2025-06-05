@@ -51,6 +51,8 @@ public class HttpSecurityConfiguration {
             "/api/account/authenticate",
             "/api/account/refresh-token",
             "/api/account/reset-password",
+            "/api/account/forgot-password",
+            "/api/account/verify-otp",
     };
 
     private final CustomAuthenticationFilter customAuthenticationFilter;

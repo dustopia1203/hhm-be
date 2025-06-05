@@ -5,6 +5,7 @@ import com.hhm.api.model.dto.request.AuthenticateRequest;
 import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
+import com.hhm.api.model.dto.request.ResetPasswordRequest;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.dto.response.Response;
@@ -50,4 +51,16 @@ public interface AccountController {
     @Operation(summary = "Get account profile")
     @GetMapping("/profile")
     Response<ProfileResponse> getAccountProfile();
+
+    @Operation(summary = "Forgot Password")
+    @PostMapping("/forgot-password")
+    Response<Boolean> forgotPassword(@RequestBody ResendActivationCodeRequest request);
+
+    @Operation(summary = "Verify Otp")
+    @PostMapping("/verify-otp")
+    Response<Boolean> verifyOTP(@RequestBody ActiveAccountRequest request);
+
+    @Operation(summary = "Reset Password")
+    @PostMapping("/reset-password")
+    Response<Boolean> resetPassword(@RequestBody ResetPasswordRequest request);
 }

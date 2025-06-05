@@ -10,6 +10,7 @@ import com.hhm.api.model.dto.request.AuthenticateRequest;
 import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
+import com.hhm.api.model.dto.request.ResetPasswordRequest;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.entity.Role;
@@ -38,6 +39,7 @@ import com.hhm.api.support.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -255,5 +257,59 @@ public class AccountServiceImpl implements AccountService {
         UserInformation userInformation = userInformationRepository.findById(currentUserId).orElse(null);
 
         return autoMapper.toResponse(userAuthority, userInformation);
+    }
+
+    @Override
+    public void forgotPassword(ResendActivationCodeRequest request) {
+        User user = userRepository.findByCredential(request.getCredential()).orElseThrow(
+                () -> new ResponseException(NotFoundError.USER_NOT_FOUND));
+
+        String resetOtp = RandomStringUtils.randomNumeric(6);
+
+        emailService.sendActivationAccountEmail(user.getEmail(), user.getId(), user.getUsername(), resetOtp);
+
+        cacheService.put(Constants.CacheName.USER_RESET_OTP_CACHE_NAME, user.getUsername(), resetOtp);
+    }
+
+    @Override
+    public void verifyResetOtp(ActiveAccountRequest request) {
+        User user = userRepository.findByCredential(request.getCredential()).orElseThrow(
+                () -> new ResponseException(NotFoundError.USER_NOT_FOUND));
+
+        String username = user.getUsername();
+
+        Object cachedValue = cacheService.get(Constants.CacheName.USER_RESET_OTP_CACHE_NAME, username);
+
+        String cachedOtp = (cachedValue instanceof SimpleValueWrapper) ? (String) ((SimpleValueWrapper) cachedValue).get() : (String) cachedValue;
+
+        if (cachedOtp == null || !cachedOtp.equals(request.getActivationCode())) {
+            throw new ResponseException(BadRequestError.INVALID_OTP);
+        }
+
+        cacheService.put(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username, "true");
+
+        cacheService.evict(Constants.CacheName.USER_RESET_OTP_CACHE_NAME, username);
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByCredential(request.getCredential()).orElseThrow(
+                () -> new ResponseException(NotFoundError.USER_NOT_FOUND));
+
+        String username = user.getUsername();
+
+        Object verified = cacheService.get(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username);
+
+        String isVerified = (verified instanceof SimpleValueWrapper) ? (String) ((SimpleValueWrapper) verified).get() : (String) verified;
+
+        if (isVerified == null || !"true".equals(isVerified)) {
+            throw new ResponseException(BadRequestError.OTP_NOT_VERIFIED);
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        userRepository.save(user);
+
+        cacheService.evict(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username);
     }
 }
