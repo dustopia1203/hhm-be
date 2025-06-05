@@ -43,6 +43,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
         values.forEach(query::setParameter);
 
+        query.setFirstResult((request.getPageIndex() - 1) * request.getPageSize());
+        query.setMaxResults(request.getPageSize());
+
         return query.getResultList();
     }
 
@@ -79,6 +82,18 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             criteriaQuery.append("AND p.status = :status ");
 
             values.put("status", request.getStatus());
+        }
+
+        if (Objects.nonNull(request.getMinPrice())) {
+            criteriaQuery.append("AND p.price >= :minPrice ");
+
+            values.put("minPrice", request.getMinPrice());
+        }
+
+        if (Objects.nonNull(request.getMaxPrice())) {
+            criteriaQuery.append("AND p.price <= :maxPrice ");
+
+            values.put("maxPrice", request.getMaxPrice());
         }
 
         return criteriaQuery.toString();

@@ -4,6 +4,7 @@ import com.hhm.api.support.enums.ActiveStatus;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -17,4 +18,5 @@ public class ShopDetailResponse {
     private Long reviewCount;
     private Float rating;
     private ActiveStatus status;
+    private Instant createdAt;
 }

@@ -2,16 +2,15 @@ package com.hhm.api.service;
 
 import com.hhm.api.model.dto.request.AddCartRequest;
 import com.hhm.api.model.dto.request.IdsRequest;
+import com.hhm.api.model.dto.response.CartItemResponse;
 import com.hhm.api.model.entity.CartItem;
-import com.hhm.api.repository.CartItemRepository;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface CartService {
-    void addItemsToMyCart(AddCartRequest request);
+    void addToMyCart(AddCartRequest request);
 
-    void deleteItemsFromMyCart(IdsRequest request);
+    List<CartItemResponse> getMyCart();
 
-    CartItem getMyCart(UUID Id);
+    void deleteFromMyCart(IdsRequest request);
 }

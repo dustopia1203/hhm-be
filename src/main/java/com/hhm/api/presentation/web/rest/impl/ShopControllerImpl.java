@@ -6,6 +6,7 @@ import com.hhm.api.model.dto.request.ShopSearchRequest;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.model.dto.response.ShopDetailResponse;
+import com.hhm.api.model.entity.Refund;
 import com.hhm.api.model.entity.Shop;
 import com.hhm.api.presentation.web.rest.ShopController;
 import com.hhm.api.service.ShopService;
@@ -59,6 +60,23 @@ public class ShopControllerImpl implements ShopController {
     @Override
     public Response<Boolean> delete(IdsRequest request) {
         shopService.delete(request);
+        return Response.ok();
+    }
+
+    @Override
+    public Response<Boolean> confirmMyShopOrder(UUID orderId) {
+        shopService.confirmMyShopOrder(orderId);
+        return Response.ok();
+    }
+
+    @Override
+    public Response<Refund> getMyShopRefund(UUID orderId) {
+        return Response.of(shopService.getMyShopRefund(orderId));
+    }
+
+    @Override
+    public Response<Boolean> confirmMyShopRefund(UUID orderId) {
+        shopService.confirmMyShopRefund(orderId);
         return Response.ok();
     }
 }

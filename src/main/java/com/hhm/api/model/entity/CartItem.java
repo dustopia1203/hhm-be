@@ -18,6 +18,7 @@ import java.util.UUID;
 @Table(
         name = "cart_item",
         indexes = {
+                @Index(name = "cart_item_user_id_idx", columnList = "user_id"),
                 @Index(name = "cart_item_product_id_idx", columnList = "product_id"),
                 @Index(name = "cart_item_deleted_idx", columnList = "deleted"),
         }
@@ -31,6 +32,9 @@ public class CartItem extends AuditableEntity {
     @Id
     @Column()
     private UUID id;
+
+    @Column(nullable = false)
+    private UUID userId;
 
     @Column(nullable = false)
     private UUID productId;

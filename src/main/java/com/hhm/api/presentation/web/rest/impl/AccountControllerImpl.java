@@ -5,6 +5,7 @@ import com.hhm.api.model.dto.request.AuthenticateRequest;
 import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
+import com.hhm.api.model.dto.response.AccountBalanceResponse;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.dto.response.Response;
@@ -64,5 +65,9 @@ public class AccountControllerImpl implements AccountController {
     @Override
     public Response<AuthenticateResponse> loginGoogle(String code) throws IOException {
         return Response.of(accountService.loginGoogle(code));
+    
+      @Override
+    public Response<AccountBalanceResponse> getAccountBalance() {
+        return Response.of(accountService.getAccountBalance());
     }
 }
