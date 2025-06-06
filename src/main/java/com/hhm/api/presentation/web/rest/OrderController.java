@@ -6,6 +6,7 @@ import com.hhm.api.model.dto.request.OrderItemSearchRequest;
 import com.hhm.api.model.dto.request.RefundRequest;
 import com.hhm.api.model.dto.request.SolanaOrderCreateRequest;
 import com.hhm.api.model.dto.request.VNPayOrderCreateRequest;
+import com.hhm.api.model.dto.response.OrderItemAnalyticsResponse;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.UUID;
@@ -61,4 +63,9 @@ public interface OrderController {
     @Operation(summary = "Completed my order")
     @PostMapping("/my/{id}/completed")
     Response<Boolean> completedMy(@PathVariable UUID id);
+
+    @Operation(summary = "Analytics my shop order items")
+    @GetMapping("/my/shop/analytics")
+    Response<List<OrderItemAnalyticsResponse>> findByShopId(@RequestParam UUID shopId);
+
 }

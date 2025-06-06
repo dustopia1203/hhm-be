@@ -11,6 +11,8 @@ import com.hhm.api.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequiredArgsConstructor
 public class ReviewControllerImpl implements ReviewController {
@@ -24,5 +26,10 @@ public class ReviewControllerImpl implements ReviewController {
     @Override
     public Response<Review> createMy(ReviewCreateRequest request) {
         return Response.of(reviewService.createMy(request));
+    }
+
+    @Override
+    public PagingResponse<ReviewResponse> findAllByShopId(UUID shopId) {
+        return PagingResponse.of(reviewService.findAllByShopId(shopId));
     }
 }

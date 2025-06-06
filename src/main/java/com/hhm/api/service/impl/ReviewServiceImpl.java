@@ -4,6 +4,7 @@ import com.hhm.api.model.dto.PageDTO;
 import com.hhm.api.model.dto.mapper.AutoMapper;
 import com.hhm.api.model.dto.request.ReviewCreateRequest;
 import com.hhm.api.model.dto.request.ReviewSearchRequest;
+import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.ReviewResponse;
 import com.hhm.api.model.entity.OrderItem;
 import com.hhm.api.model.entity.Review;
@@ -125,5 +126,46 @@ public class ReviewServiceImpl implements ReviewService {
         orderItemRepository.save(orderItem);
 
         return review;
+    }
+
+    @Override
+    public PageDTO<ReviewResponse> findAllByShopId(UUID shopId) {
+        List<Review> reviews = reviewRepository.findAllByShopId(shopId);
+
+        long count = reviews.size();
+
+        if(count==0){
+            return PageDTO.empty(0,0);
+        }
+
+        List<ReviewResponse> responses = new ArrayList<>();
+
+        reviews.forEach(review -> {
+            ReviewResponse response = autoMapper.toResponse(review);
+
+            if (Objects.nonNull(review.getContentUrls())) {
+                response.setImages(review.getContentUrls().split(";"));
+            }
+
+            Optional<User> userOptional = userRepository.findById(review.getUserId());
+
+            if (userOptional.isEmpty()) {
+                throw new ResponseException(NotFoundError.USER_NOT_FOUND);
+            }
+
+            User user = userOptional.get();
+
+            response.setUsername(user.getUsername());
+
+            Optional<UserInformation> userInformationOptional = userInformationRepository.findByUserId(user.getId());
+
+            userInformationOptional.ifPresent(userInformation -> response.setUserAvatar(userInformation.getAvatarUrl()));
+
+            responses.add(response);
+        });
+
+        int pageSize = (int) count/10;
+
+        return PageDTO.of(responses, 0, pageSize+1, count);
     }
 }

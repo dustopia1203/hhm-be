@@ -12,9 +12,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.UUID;
 
 @Tag(name = "Review Resources")
 @RequestMapping("/api/reviews")
@@ -27,4 +30,8 @@ public interface ReviewController {
     @Operation(summary = "Create my review")
     @PostMapping("/my")
     Response<Review> createMy(@Valid @RequestBody ReviewCreateRequest request);
+
+    @Operation(summary = "Get All Reviews In Shop")
+    @GetMapping("/{shopId}")
+    PagingResponse<ReviewResponse> findAllByShopId(@Valid @PathVariable UUID shopId);
 }
