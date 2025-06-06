@@ -68,10 +68,11 @@ public class AccountControllerImpl implements AccountController {
     }
 
     @Override
-    public Response<AuthenticateResponse> loginFacebook(String code)  {
+    public Response<AuthenticateResponse> loginFacebook(String code) {
         return Response.of(accountService.loginFacebook(code));
-   
-      @Override
+    }
+
+    @Override
     public Response<AccountBalanceResponse> getAccountBalance() {
         return Response.of(accountService.getAccountBalance());
     }
