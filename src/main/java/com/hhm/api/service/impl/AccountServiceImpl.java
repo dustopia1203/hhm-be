@@ -497,7 +497,8 @@ public class AccountServiceImpl implements AccountService {
                 .accessToken(accessToken)
                 .accessTokenExpiresIn(Long.parseLong(tokenData.get("expires_in").toString()))
                 .accessTokenExpiredAt(Instant.now().plusSeconds(Long.parseLong(tokenData.get("expires_in").toString())))
-    
+                .build();
+    }
     @Override
     public AccountBalanceResponse getAccountBalance() {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
