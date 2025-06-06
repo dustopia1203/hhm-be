@@ -316,7 +316,9 @@ public class AccountServiceImpl implements AccountService {
         userRepository.save(user);
 
         cacheService.evict(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username);
+    }
 
+    @Override
     public AccountBalanceResponse getAccountBalance() {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
 

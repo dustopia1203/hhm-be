@@ -80,10 +80,10 @@ public class AccountControllerImpl implements AccountController {
     public Response<Boolean> resetPassword(ResetPasswordRequest request) {
         accountService.resetPassword(request);
         return Response.ok();
-      
+    }
+
      @Override
      public Response<AccountBalanceResponse> getAccountBalance() {
         return Response.of(accountService.getAccountBalance());
-
     }
 }
