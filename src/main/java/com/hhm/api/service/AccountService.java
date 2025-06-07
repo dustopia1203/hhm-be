@@ -28,9 +28,6 @@ public interface AccountService {
 
     ProfileResponse getAccountProfile();
 
-
-    AuthenticateResponse loginGoogle(String code) throws IOException;
-
     AuthenticateResponse loginFacebook(String code );
 
     AccountBalanceResponse getAccountBalance();
