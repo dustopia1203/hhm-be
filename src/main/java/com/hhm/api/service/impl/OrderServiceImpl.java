@@ -8,6 +8,7 @@ import com.hhm.api.model.dto.request.OrderItemSearchRequest;
 import com.hhm.api.model.dto.request.RefundRequest;
 import com.hhm.api.model.dto.request.SolanaOrderCreateRequest;
 import com.hhm.api.model.dto.request.VNPayOrderCreateRequest;
+import com.hhm.api.model.dto.response.OrderItemAnalyticsResponse;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.entity.OrderItem;
 import com.hhm.api.model.entity.Product;
@@ -15,12 +16,14 @@ import com.hhm.api.model.entity.Refund;
 import com.hhm.api.model.entity.Shipping;
 import com.hhm.api.model.entity.Shop;
 import com.hhm.api.model.entity.Transaction;
+import com.hhm.api.model.entity.User;
 import com.hhm.api.repository.OrderItemRepository;
 import com.hhm.api.repository.ProductRepository;
 import com.hhm.api.repository.RefundRepository;
 import com.hhm.api.repository.ShippingRepository;
 import com.hhm.api.repository.ShopRepository;
 import com.hhm.api.repository.TransactionRepository;
+import com.hhm.api.repository.UserRepository;
 import com.hhm.api.service.OrderService;
 import com.hhm.api.support.enums.OrderItemStatus;
 import com.hhm.api.support.enums.PaymentMethod;
@@ -53,6 +56,7 @@ public class OrderServiceImpl implements OrderService {
     private final ShopRepository shopRepository;
     private final RefundRepository refundRepository;
     private final TransactionRepository transactionRepository;
+    private final UserRepository userRepository;
 
     @Override
     public PageDTO<OrderItemResponse> searchOrderItem(OrderItemSearchRequest request) {
@@ -136,6 +140,61 @@ public class OrderServiceImpl implements OrderService {
         orderItem.setOrderItemStatus(OrderItemStatus.COMPLETED);
 
         orderItemRepository.save(orderItem);
+    }
+
+    @Override
+    public List<OrderItemAnalyticsResponse> findByShopId(UUID shopId) {
+        List<OrderItem> orderItems = orderItemRepository.findByShopId(shopId);
+
+        List<OrderItemAnalyticsResponse> responses = new ArrayList<>();
+
+        for (OrderItem x : orderItems) {
+            OrderItemAnalyticsResponse response = OrderItemAnalyticsResponse.builder()
+                    .createdAt(x.getCreatedAt())
+                    .id(x.getId())
+                    .price(x.getPrice())
+                    .orderItemStatus(x.getOrderItemStatus())
+                    .productId(x.getProductId())
+                    .userId(x.getUserId())
+                    .amount(x.getAmount())
+                    .shippingId(x.getShippingId())
+                    .address(x.getAddress())
+                    .build();
+
+            Optional<Product> optionalProduct = productRepository.findById(x.getProductId());
+
+            if (optionalProduct.isEmpty()) {
+                throw new ResponseException(NotFoundError.PRODUCT_NOT_FOUND);
+            }
+
+            Product product = optionalProduct.get();
+
+            response.setProductName(product.getName());
+
+            Optional<Shipping> optionalShipping = shippingRepository.findById(x.getShippingId());
+
+            if (optionalShipping.isEmpty()) {
+                throw new ResponseException(NotFoundError.SHIPPING_NOT_FOUND);
+            }
+
+            Shipping shipping = optionalShipping.get();
+
+            response.setShippingPrice(shipping.getPrice());
+
+            Optional<User> optionalUser = userRepository.findById(x.getUserId());
+
+            if (optionalUser.isEmpty()) {
+                throw new ResponseException(NotFoundError.USER_NOT_FOUND);
+            }
+
+            User user = optionalUser.get();
+
+            response.setUsername(user.getUsername());
+
+            responses.add(response);
+        }
+
+        return responses;
     }
 
     private PageDTO<OrderItemResponse> queryOrderItem(OrderItemSearchRequest request) {

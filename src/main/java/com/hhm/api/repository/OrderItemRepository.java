@@ -51,4 +51,7 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, UUID>, Ord
             AND oi.last_modified_at <= now() - INTERVAL '5 days';
     """, nativeQuery = true)
     List<OrderItem> findAllExpiredPending();
+
+    @Query("SELECT oi FROM OrderItem oi WHERE oi.deleted = FALSE AND  oi.shopId = :shopId")
+    List<OrderItem> findByShopId(UUID shopId);
 }

@@ -6,6 +6,7 @@ import com.hhm.api.model.dto.request.OrderItemSearchRequest;
 import com.hhm.api.model.dto.request.RefundRequest;
 import com.hhm.api.model.dto.request.SolanaOrderCreateRequest;
 import com.hhm.api.model.dto.request.VNPayOrderCreateRequest;
+import com.hhm.api.model.dto.response.OrderItemAnalyticsResponse;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.entity.OrderItem;
 
@@ -28,4 +29,6 @@ public interface OrderService {
     void refundMy(UUID id, RefundRequest request);
 
     void completedMy(UUID id);
+
+    List<OrderItemAnalyticsResponse> findByShopId(UUID shopId);
 }
