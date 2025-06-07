@@ -12,7 +12,6 @@ import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 import com.hhm.api.model.dto.request.ResetPasswordRequest;
 import com.hhm.api.model.dto.response.AccountBalanceResponse;
-
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.entity.Role;
@@ -303,12 +302,24 @@ public class AccountServiceImpl implements AccountService {
 
         String username = user.getUsername();
 
-        Object verified = cacheService.get(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username);
+        if (request.getCurrentPassword() != null && !request.getCurrentPassword().isEmpty()) {
+            try {
+                Authentication authentication = new CustomUserAuthentication(username, request.getCurrentPassword());
+                authenticationManager.authenticate(authentication);
 
-        String isVerified = (verified instanceof SimpleValueWrapper) ? (String) ((SimpleValueWrapper) verified).get() : (String) verified;
+                // Nếu verify thành công, set flag verified
+                cacheService.put(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username, "true");
+            } catch (Exception e) {
+                throw new ResponseException(BadRequestError.INVALID_PASSWORD);
+            }
+        } else {
+            // Nếu không có currentPassword thì check OTP
+            Object verified = cacheService.get(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username);
+            String isVerified = (verified instanceof SimpleValueWrapper) ? (String) ((SimpleValueWrapper) verified).get() : (String) verified;
 
-        if (isVerified == null || !"true".equals(isVerified)) {
-            throw new ResponseException(BadRequestError.OTP_NOT_VERIFIED);
+            if (isVerified == null || !"true".equals(isVerified)) {
+                throw new ResponseException(BadRequestError.OTP_NOT_VERIFIED);
+            }
         }
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
@@ -318,14 +329,14 @@ public class AccountServiceImpl implements AccountService {
         cacheService.evict(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username);
     }
 
-    @Override
-    public AccountBalanceResponse getAccountBalance() {
-        UUID currentUserId = SecurityUtils.getCurrentUserId();
+@Override
+public AccountBalanceResponse getAccountBalance() {
+    UUID currentUserId = SecurityUtils.getCurrentUserId();
 
-        BigDecimal balance = transactionRepository.findUserBalance(currentUserId);
+    BigDecimal balance = transactionRepository.findUserBalance(currentUserId);
 
-        return AccountBalanceResponse.builder()
-                .balance(balance)
-                .build();
+    return AccountBalanceResponse.builder()
+            .balance(balance)
+            .build();
     }
 }

@@ -12,4 +12,5 @@ public class ResetPasswordRequest extends Request {
     private String credential;
     @NotBlank(message = "PASSWORD_REQUIRED")
     private String newPassword;
+    private String currentPassword;
 }
