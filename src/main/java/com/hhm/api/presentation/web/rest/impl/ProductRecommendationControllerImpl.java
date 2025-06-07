@@ -18,13 +18,6 @@ public class ProductRecommendationControllerImpl implements ProductRecommendatio
     private final ProductRecommendationService productRecommendationService;
 
     @Override
-    public List<ProductDocument> getRecommendations(int size) {
-        UUID userId = SecurityUtils.getCurrentUserId();
-        // System.out.println("userId = " + userId);
-        return productRecommendationService.getPersonalizedRecommendations(userId, size);
-    }
-
-    @Override
     public List<ProductDocument> getSimilarProducts(UUID productId, int size) {
         return productRecommendationService.getSimilarProducts(productId, size);
     }

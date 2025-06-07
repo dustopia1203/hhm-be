@@ -11,12 +11,6 @@ import java.util.UUID;
 
 @Tag(name = "Product Recommendation API")
 public interface ProductRecommendationController {
-    @Operation(summary = "Get personalized product recommendations")
-    @GetMapping("/api/v1/products/recommendations")
-    List<ProductDocument> getRecommendations(
-        @RequestParam(defaultValue = "10") int size
-    );
-
     @Operation(summary = "Get similar products")
     @GetMapping("/api/v1/products/{productId}/similar")
     List<ProductDocument> getSimilarProducts(
