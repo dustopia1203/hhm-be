@@ -297,7 +297,7 @@ public class AccountServiceImpl implements AccountService {
         params.add("code", code);
         params.add("client_id", clientId);
         params.add("client_secret", clientSecret);
-        params.add("redirect_uri", "postmessage");
+        params.add("redirect_uri", redirectUrl);
         params.add("grant_type", "authorization_code");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
@@ -362,9 +362,9 @@ public class AccountServiceImpl implements AccountService {
         Role memberRole = roleRepository.findByCode(Constants.DefaultRole.MEMBER.name()).orElse(null);
 
         if (memberRole != null) {
-            boolean hasRole = userRoleRepository.existsByUserIdAndRoleIdAndDeletedFalse(user.getId(), memberRole.getId());
+            Optional<UserRole> optionalUserRole = userRoleRepository.findByUserIdAndRoleId(user.getId(), memberRole.getId());
 
-            if (!hasRole) {
+            if (optionalUserRole.isEmpty()) {
                 UserRole userRole = UserRole.builder()
                         .id(IdUtils.nextId())
                         .userId(user.getId())
