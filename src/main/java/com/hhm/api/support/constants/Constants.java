@@ -15,6 +15,8 @@ public interface Constants {
         public static final String INVALID_REFRESH_TOKEN_CACHE_NAME = "invalid-refresh-token";
         public static final String INVALID_REFRESH_TOKEN_LONG_CACHE_NAME = "invalid-refresh-token-long";
         public static final String USER_OTP_CACHE_NAME = "user-otp";
+        public static final String USER_RESET_OTP_CACHE_NAME = "user-reset-otp";
+        public static final String USER_RESET_VERIFIED_CACHE_NAME = "verified-otp";
     }
 
     final class Template {
