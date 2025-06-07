@@ -51,6 +51,15 @@ security:
       refresh-token-expires-in: ${REFRESH_TOKEN_EXPIRES_IN:1d}
       refresh-token-long-expires-in: ${REFRESH_TOKEN_LONG_EXPIRES_IN:30d}
 
+facebook:
+  client-id: 673613752250343
+  client-secret: 6d82c600eb888c56a1e5cc987f2e2955
+  redirect-url: http://localhost:8080/api/account/authenticate/facebook
+  auth-url: https://www.facebook.com/v12.0/dialog/oauth
+  token-url: https://graph.facebook.com/v12.0/oauth/access_token
+  user-info-url: https://graph.facebook.com/me?fields=id,name,email,picture,first_name,middle_name,last_name,gender
+  scope: email%20public_profile
+
 vnpay:
   version: 2.1.0
   tmn-code: Y0ZE5LJM
@@ -58,3 +67,4 @@ vnpay:
   url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
   return-url: http://localhost:5173/payment/vnpay-callback
   expired-time: ${PAYMENT_EXPIRE:1m}
+

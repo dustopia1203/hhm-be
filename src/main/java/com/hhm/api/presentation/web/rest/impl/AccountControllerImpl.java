@@ -9,11 +9,13 @@ import com.hhm.api.model.dto.response.AccountBalanceResponse;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.dto.response.Response;
+import com.hhm.api.model.entity.User;
 import com.hhm.api.presentation.web.rest.AccountController;
 import com.hhm.api.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -58,6 +60,11 @@ public class AccountControllerImpl implements AccountController {
     @Override
     public Response<ProfileResponse> getAccountProfile() {
         return Response.of(accountService.getAccountProfile());
+    }
+
+    @Override
+    public Response<AuthenticateResponse> loginFacebook(String code) {
+        return Response.of(accountService.loginFacebook(code));
     }
 
     @Override

@@ -8,7 +8,9 @@ import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 import com.hhm.api.model.dto.response.AccountBalanceResponse;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
+import com.hhm.api.model.entity.User;
 
+import java.io.IOException;
 import java.util.UUID;
 
 public interface AccountService {
@@ -26,5 +28,8 @@ public interface AccountService {
 
     ProfileResponse getAccountProfile();
 
+    AuthenticateResponse loginFacebook(String code );
+
     AccountBalanceResponse getAccountBalance();
+
 }
