@@ -8,6 +8,7 @@ import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 
 import com.hhm.api.model.dto.request.ResetPasswordRequest;
 
+import com.hhm.api.model.dto.request.UserInformationUpdateRequest;
 import com.hhm.api.model.dto.response.AccountBalanceResponse;
 
 import com.hhm.api.model.dto.response.AuthenticateResponse;
@@ -38,4 +39,5 @@ public interface AccountService {
 
     AccountBalanceResponse getAccountBalance();
 
+    void updateProfile(UserInformationUpdateRequest request);
 }

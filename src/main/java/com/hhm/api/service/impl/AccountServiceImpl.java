@@ -11,6 +11,7 @@ import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 import com.hhm.api.model.dto.request.ResetPasswordRequest;
+import com.hhm.api.model.dto.request.UserInformationUpdateRequest;
 import com.hhm.api.model.dto.response.AccountBalanceResponse;
 
 import com.hhm.api.model.dto.response.AuthenticateResponse;
@@ -327,5 +328,33 @@ public class AccountServiceImpl implements AccountService {
         return AccountBalanceResponse.builder()
                 .balance(balance)
                 .build();
+    }
+
+    @Override
+    public void updateProfile(UserInformationUpdateRequest request) {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+        UserAuthority userAuthority = authenticationService.getUserAuthority(currentUserId);
+
+        UserInformation userInformation = userInformationRepository.findByUserId(currentUserId).orElse(null);
+
+        if(userInformation.getAddress()!= null)userInformation.setAddress(request.getAddress());
+
+        if(userInformation.getFirstName()!=null)userInformation.setFirstName(request.getFirstName());
+
+        if(userInformation.getMiddleName()!=null)userInformation.setMiddleName(request.getMiddleName());
+
+        if(userInformation.getLastName()!=null)userInformation.setLastName(request.getLastName());
+
+        if(userInformation.getGender()!=null)userInformation.setGender(request.getGender());
+
+        if(userInformation.getAvatarUrl()!=null)userInformation.setAvatarUrl(request.getAvatarUrl());
+
+        if(userInformation.getDateOfBirth()!=null)userInformation.setDateOfBirth(request.getDateOfBirth());
+
+        if(userInformation.getPhone()!=null)userInformation.setPhone(request.getPhone());
+
+        userInformationRepository.save(userInformation);
+
     }
 }

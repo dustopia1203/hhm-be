@@ -8,6 +8,7 @@ import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 
 import com.hhm.api.model.dto.request.ResetPasswordRequest;
 
+import com.hhm.api.model.dto.request.UserInformationUpdateRequest;
 import com.hhm.api.model.dto.response.AccountBalanceResponse;
 
 import com.hhm.api.model.dto.response.AuthenticateResponse;
@@ -85,5 +86,11 @@ public class AccountControllerImpl implements AccountController {
      @Override
      public Response<AccountBalanceResponse> getAccountBalance() {
         return Response.of(accountService.getAccountBalance());
+    }
+
+    @Override
+    public Response<Boolean> updateProfile(UserInformationUpdateRequest request) {
+        accountService.updateProfile(request);
+        return Response.ok();
     }
 }

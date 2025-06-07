@@ -8,6 +8,7 @@ import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 
 import com.hhm.api.model.dto.request.ResetPasswordRequest;
 
+import com.hhm.api.model.dto.request.UserInformationUpdateRequest;
 import com.hhm.api.model.dto.response.AccountBalanceResponse;
 
 import com.hhm.api.model.dto.response.AuthenticateResponse;
@@ -20,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -72,4 +74,7 @@ public interface AccountController {
     @GetMapping("/balance")
     Response<AccountBalanceResponse> getAccountBalance();
 
+    @Operation(summary = "Update profile")
+    @PutMapping("/update")
+    Response<Boolean> updateProfile(@RequestBody UserInformationUpdateRequest request);
 }
