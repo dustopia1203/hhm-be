@@ -65,8 +65,9 @@ public class AccountControllerImpl implements AccountController {
     @Override
     public Response<AuthenticateResponse> loginGoogle(String code) throws IOException {
         return Response.of(accountService.loginGoogle(code));
-    
-      @Override
+    }
+
+    @Override
     public Response<AccountBalanceResponse> getAccountBalance() {
         return Response.of(accountService.getAccountBalance());
     }

@@ -55,7 +55,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -298,7 +297,7 @@ public class AccountServiceImpl implements AccountService {
         params.add("code", code);
         params.add("client_id", clientId);
         params.add("client_secret", clientSecret);
-        params.add("redirect_uri", redirectUrl);
+        params.add("redirect_uri", "postmessage");
         params.add("grant_type", "authorization_code");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
@@ -325,9 +324,7 @@ public class AccountServiceImpl implements AccountService {
 
         if (existingUser.isPresent()) {
             user = existingUser.get();
-
             user.setUsername(userInformationData.get("name").toString());
-
         } else {
             user = User.builder()
                     .id(IdUtils.nextId())
@@ -364,23 +361,44 @@ public class AccountServiceImpl implements AccountService {
 
         Role memberRole = roleRepository.findByCode(Constants.DefaultRole.MEMBER.name()).orElse(null);
 
-        if (Objects.nonNull(memberRole)) {
+        if (memberRole != null) {
+            boolean hasRole = userRoleRepository.existsByUserIdAndRoleIdAndDeletedFalse(user.getId(), memberRole.getId());
 
-            UserRole userRole = UserRole.builder()
-                    .id(IdUtils.nextId())
-                    .userId(user.getId())
-                    .roleId(memberRole.getId())
-                    .deleted(Boolean.FALSE)
-                    .build();
+            if (!hasRole) {
+                UserRole userRole = UserRole.builder()
+                        .id(IdUtils.nextId())
+                        .userId(user.getId())
+                        .roleId(memberRole.getId())
+                        .deleted(false)
+                        .build();
 
-            userRoleRepository.save(userRole);
-
+                userRoleRepository.save(userRole);
+            }
         }
 
+        // Create authentication for JWT token
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), "", new ArrayList<>());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Generate JWT tokens
+        String jwtAccessToken = tokenProvider.buildToken(authentication, user.getId(), TokenType.ACCESS_TOKEN);
+        Duration accessTokenExpiresIn = authenticationProperties.getAccessTokenExpiresIn();
+        Instant accessTokenExpiresAt = Instant.now().plus(accessTokenExpiresIn);
+
+        String jwtRefreshToken = tokenProvider.buildToken(authentication, user.getId(), TokenType.REFRESH_TOKEN);
+        Duration refreshTokenExpiresIn = authenticationProperties.getRefreshTokenExpiresIn();
+        Instant refreshTokenExpiresAt = Instant.now().plus(refreshTokenExpiresIn);
+
         return AuthenticateResponse.builder()
-                .accessToken(accessToken)
-                .accessTokenExpiresIn(Long.parseLong(tokenData.get("expires_in").toString()))
-                .accessTokenExpiredAt(Instant.now().plusSeconds(Long.parseLong(tokenData.get("expires_in").toString())))
+                .accessToken(jwtAccessToken)
+                .accessTokenExpiresIn(accessTokenExpiresIn.toSeconds())
+                .accessTokenExpiredAt(accessTokenExpiresAt)
+                .refreshToken(jwtRefreshToken)
+                .refreshTokenExpiresIn(refreshTokenExpiresIn.toSeconds())
+                .refreshTokenExpiredAt(refreshTokenExpiresAt)
+                .build();
+    }
+
     @Override
     public AccountBalanceResponse getAccountBalance() {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
