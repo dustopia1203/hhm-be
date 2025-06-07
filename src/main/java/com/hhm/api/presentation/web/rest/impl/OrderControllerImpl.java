@@ -5,6 +5,7 @@ import com.hhm.api.model.dto.request.OrderItemSearchRequest;
 import com.hhm.api.model.dto.request.RefundRequest;
 import com.hhm.api.model.dto.request.SolanaOrderCreateRequest;
 import com.hhm.api.model.dto.request.VNPayOrderCreateRequest;
+import com.hhm.api.model.dto.response.OrderItemAnalyticsResponse;
 import com.hhm.api.model.dto.response.OrderItemResponse;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
@@ -62,5 +63,10 @@ public class OrderControllerImpl implements OrderController {
     public Response<Boolean> completedMy(UUID id) {
         orderService.completedMy(id);
         return Response.ok();
+    }
+
+    @Override
+    public Response<List<OrderItemAnalyticsResponse>> findByShopId(UUID shopId) {
+        return Response.of(orderService.findByShopId(shopId));
     }
 }
