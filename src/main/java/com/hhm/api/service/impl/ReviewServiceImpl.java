@@ -126,4 +126,45 @@ public class ReviewServiceImpl implements ReviewService {
 
         return review;
     }
+
+    @Override
+    public PageDTO<ReviewResponse> findByShopId(UUID shopId) {
+        List<Review> reviews = reviewRepository.findByShopId(shopId);
+
+        long count = reviews.size();
+
+        if(count==0){
+            return PageDTO.empty(0,0);
+        }
+
+        List<ReviewResponse> responses = new ArrayList<>();
+
+        reviews.forEach(review -> {
+            ReviewResponse response = autoMapper.toResponse(review);
+
+            if (Objects.nonNull(review.getContentUrls())) {
+                response.setImages(review.getContentUrls().split(";"));
+            }
+
+            Optional<User> userOptional = userRepository.findById(review.getUserId());
+
+            if (userOptional.isEmpty()) {
+                throw new ResponseException(NotFoundError.USER_NOT_FOUND);
+            }
+
+            User user = userOptional.get();
+
+            response.setUsername(user.getUsername());
+
+            Optional<UserInformation> userInformationOptional = userInformationRepository.findByUserId(user.getId());
+
+            userInformationOptional.ifPresent(userInformation -> response.setUserAvatar(userInformation.getAvatarUrl()));
+
+            responses.add(response);
+        });
+
+        int pageSize = (int) count/10;
+
+        return PageDTO.of(responses, 0, pageSize+1, count);
+    }
 }
