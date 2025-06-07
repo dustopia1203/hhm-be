@@ -51,6 +51,9 @@ security:
       refresh-token-expires-in: ${REFRESH_TOKEN_EXPIRES_IN:1d}
       refresh-token-long-expires-in: ${REFRESH_TOKEN_LONG_EXPIRES_IN:30d}
 
+elasticsearch:
+  host: localhost
+  port: 9200
 vnpay:
   version: 2.1.0
   tmn-code: Y0ZE5LJM

@@ -1,0 +1,54 @@
+{
+  "index_patterns": [
+    "user_behaviors*"
+  ],
+  "template": {
+    "settings": {
+      "analysis": {
+        "analyzer": {
+          "folding_analyzer": {
+            "tokenizer": "standard",
+            "filter": [
+              "lowercase",
+              "asciifolding"
+            ]
+          }
+        }
+      }
+    },
+    "mappings": {
+      "properties": {
+        "id": {
+          "type": "keyword"
+        },
+        "userId": {
+          "type": "keyword"
+        },
+        "productId": {
+          "type": "keyword"
+        },
+        "behaviorType": {
+          "type": "keyword"
+        },
+        "searchQuery": {
+          "type": "text",
+          "analyzer": "folding_analyzer",
+          "fields": {
+            "keyword": {
+              "type": "keyword"
+            }
+          }
+        },
+        "timestamp": {
+          "type": "date"
+        },
+        "categoryId": {
+          "type": "keyword"
+        },
+        "shopId": {
+          "type": "keyword"
+        }
+      }
+    }
+  }
+}
