@@ -9,9 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.UUID;
 
 public interface ReviewRepository extends JpaRepository<Review, UUID>, ReviewRepositoryCustom {
-    @Query("SELECT COUNT(r), AVG(r.rating) FROM Review r WHERE r.deleted = FALSE AND r.shopId = :shopId")
+    @Query("SELECT COUNT(r) as reviewCount, AVG(r.rating) as avgRating FROM Review r WHERE r.deleted = FALSE AND r.shopId = :shopId")
     ReviewStat findStatByShop(UUID shopId);
 
-    @Query("SELECT COUNT(r), AVG(r.rating) FROM Review r WHERE r.deleted = FALSE AND r.productId = :productId")
+    @Query("SELECT COUNT(r) as reviewCount, AVG(r.rating) as avgRating FROM Review r WHERE r.deleted = FALSE AND r.productId = :productId")
     ReviewStat findStatByProduct(UUID productId);
 }
