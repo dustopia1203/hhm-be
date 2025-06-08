@@ -54,8 +54,8 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
-    public Response<Boolean> setUserRole(UUID id, UUID roleId) {
-        userService.setUserRole(id, roleId);
+    public Response<Boolean> setUserRole(UUID id, IdsRequest request) {
+        userService.setUserRole(id, request);
         return Response.ok();
     }
 }

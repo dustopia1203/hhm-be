@@ -58,7 +58,7 @@ public interface UserController {
     Response<List<Role>> getUserRoles(@PathVariable UUID id);
 
     @Operation(summary = "Set user role")
-    @PutMapping("/{id}/roles/{roleId}")
+    @PutMapping("/{id}/roles")
     @PreAuthorize("hasPermission(null, 'USER:UPDATE')")
-    Response<Boolean> setUserRole(@PathVariable UUID id, @PathVariable UUID roleId);
+    Response<Boolean> setUserRole(@PathVariable UUID id, @RequestBody IdsRequest request);
 }

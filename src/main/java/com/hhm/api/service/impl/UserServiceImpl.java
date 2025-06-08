@@ -125,6 +125,8 @@ public class UserServiceImpl implements UserService {
                 .status(user.getStatus())
                 .accountType(user.getAccountType())
                 .userRoles(userRoles)
+                .createdAt(user.getCreatedAt())
+                .lastModifiedAt(user.getLastModifiedAt())
                 .build();
     }
 
@@ -229,21 +231,44 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void setUserRole(UUID id, UUID roleId) {
+    public void setUserRole(UUID id, IdsRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResponseException(NotFoundError.USER_NOT_FOUND));
 
-        Role role = roleRepository.findActiveById(roleId)
-                .orElseThrow(() -> new ResponseException(NotFoundError.ROLE_NOT_FOUND));
+        List<Role> role = roleRepository.findActiveByIds(request.getIds());
 
-        UserRole userRole = UserRole.builder()
-                .id(IdUtils.nextId())
-                .userId(user.getId())
-                .roleId(role.getId())
-                .deleted(Boolean.FALSE)
-                .build();
+        List<UUID> roleIds = role.stream()
+                .map(Role::getId)
+                .toList();
 
-        userRoleRepository.save(userRole);
+        List<UserRole> existedUserRoles = userRoleRepository.findByUser(user.getId());
+
+        List<UserRole> updatedUserRoles = new ArrayList<>(existedUserRoles.stream()
+                .peek(userRole -> userRole.setDeleted(Boolean.TRUE))
+                .toList());
+
+        roleIds.forEach(roleId -> {
+            Optional<UserRole> userRoleOptional = updatedUserRoles.stream()
+                    .filter(userRole -> Objects.equals(userRole.getRoleId(), roleId))
+                    .findFirst();
+
+            if (userRoleOptional.isEmpty()) {
+                UserRole userRole = UserRole.builder()
+                        .id(IdUtils.nextId())
+                        .userId(user.getId())
+                        .roleId(roleId)
+                        .deleted(Boolean.FALSE)
+                        .build();
+
+                updatedUserRoles.add(userRole);
+            } else {
+                UserRole userRole = userRoleOptional.get();
+
+                userRole.setDeleted(Boolean.FALSE);
+            }
+        });
+
+        userRoleRepository.saveAll(updatedUserRoles);
     }
 
 }

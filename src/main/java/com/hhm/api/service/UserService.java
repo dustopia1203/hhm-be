@@ -25,5 +25,5 @@ public interface UserService {
 
     List<Role> getUserRoles(UUID id);
 
-    void setUserRole(UUID id, UUID roleId);
+    void setUserRole(UUID id, IdsRequest request);
 }
