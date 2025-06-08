@@ -1,0 +1,33 @@
+{
+  "index_patterns": ["products*"],
+  "template": {
+    "settings": {
+      "analysis": {
+        "analyzer": {
+          "folding_analyzer": {
+            "tokenizer": "standard",
+            "filter": ["lowercase", "asciifolding"]
+          }
+        }
+      }
+    },
+    "mappings": {
+      "properties": {
+        "name": {
+          "type": "text",
+          "analyzer": "folding_analyzer",
+          "fields": {
+            "folded": {
+              "type": "text",
+              "analyzer": "folding_analyzer"
+            }
+          }
+        },
+        "description": {
+          "type": "text",
+          "analyzer": "folding_analyzer"
+        }
+      }
+    }
+  }
+}

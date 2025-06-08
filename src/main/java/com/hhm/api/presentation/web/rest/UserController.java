@@ -6,6 +6,7 @@ import com.hhm.api.model.dto.request.UserSearchRequest;
 import com.hhm.api.model.dto.response.PagingResponse;
 import com.hhm.api.model.dto.response.Response;
 import com.hhm.api.model.dto.response.UserDetailResponse;
+import com.hhm.api.model.entity.Role;
 import com.hhm.api.model.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,13 +20,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "User Resources")
 @RequestMapping("/api/users")
 @Validated
 public interface UserController {
-    @Operation(summary = "Search user by id")
+    @Operation(summary = "Search users")
     @GetMapping("/q")
     @PreAuthorize("hasPermission(null, 'USER:READ')")
     PagingResponse<User> search(@ValidatePaging(sortModel = User.class) UserSearchRequest request);
@@ -49,4 +51,14 @@ public interface UserController {
     @DeleteMapping("")
     @PreAuthorize("hasPermission(null, 'USER:DELETE')")
     Response<Boolean> delete(@RequestBody IdsRequest request);
+
+    @Operation(summary = "Get user roles")
+    @GetMapping("/{id}/roles")
+    @PreAuthorize("hasPermission(null, 'USER:READ')")
+    Response<List<Role>> getUserRoles(@PathVariable UUID id);
+
+    @Operation(summary = "Set user role")
+    @PutMapping("/{id}/roles")
+    @PreAuthorize("hasPermission(null, 'USER:UPDATE')")
+    Response<Boolean> setUserRole(@PathVariable UUID id, @RequestBody IdsRequest request);
 }

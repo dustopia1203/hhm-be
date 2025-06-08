@@ -6,18 +6,24 @@ import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
 
+
 import com.hhm.api.model.dto.request.ResetPasswordRequest;
+
+
+import com.hhm.api.model.dto.request.UserInformationUpdateRequest;
 
 import com.hhm.api.model.dto.response.AccountBalanceResponse;
 
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.dto.response.Response;
+import com.hhm.api.model.entity.User;
 import com.hhm.api.presentation.web.rest.AccountController;
 import com.hhm.api.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -83,7 +89,18 @@ public class AccountControllerImpl implements AccountController {
     }
 
      @Override
-     public Response<AccountBalanceResponse> getAccountBalance() {
+    public Response<AuthenticateResponse> loginGoogle(String code) throws IOException {
+        return Response.of(accountService.loginGoogle(code));
+    }
+
+    @Override
+    public Response<AccountBalanceResponse> getAccountBalance() {
         return Response.of(accountService.getAccountBalance());
+    }
+
+    @Override
+    public Response<Boolean> updateProfile(UserInformationUpdateRequest request) {
+        accountService.updateProfile(request);
+        return Response.ok();
     }
 }

@@ -41,6 +41,7 @@ public class HttpSecurityConfiguration {
             "/api/shops/{id}",
             "/api/products/**",
             "/api/reviews/**",
+            "/api/v1/products/**",
     };
 
     private final String[] COMMAND_PUBLIC_URLS = {
@@ -49,6 +50,7 @@ public class HttpSecurityConfiguration {
             "/api/account/active",
             "/api/account/{id}/active",
             "/api/account/authenticate",
+            "/api/account/authenticate/callback",
             "/api/account/refresh-token",
             "/api/account/reset-password",
             "/api/account/forgot-password",

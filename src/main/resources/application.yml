@@ -51,6 +51,21 @@ security:
       refresh-token-expires-in: ${REFRESH_TOKEN_EXPIRES_IN:1d}
       refresh-token-long-expires-in: ${REFRESH_TOKEN_LONG_EXPIRES_IN:30d}
 
+
+google:
+  client-id: 1017906156501-7em9qi30gibuj7lhtpb5k13ts20qrg7s.apps.googleusercontent.com
+  client-secret: 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
+  redirect-url: http://localhost:8080/api/account/authenticate/callback
+  auth-url: https://accounts.google.com/o/oauth2/v2/auth
+  token-url: https://oauth2.googleapis.com/token
+  user-info-url: https://www.googleapis.com/oauth2/v3/userinfo
+  scope: openid%20email%20profile
+
+
+elasticsearch:
+  host: localhost
+  port: 9200
+
 vnpay:
   version: 2.1.0
   tmn-code: Y0ZE5LJM
@@ -58,3 +73,4 @@ vnpay:
   url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
   return-url: http://localhost:5173/payment/vnpay-callback
   expired-time: ${PAYMENT_EXPIRE:1m}
+
