@@ -28,7 +28,7 @@ import java.util.UUID;
 public interface ProductController {
     @Operation(summary = "Search products")
     @GetMapping("/q")
-    PagingResponse<Product> search(@ValidatePaging(sortModel = Product.class) ProductSearchRequest request);
+    PagingResponse<ProductResponse> search(@ValidatePaging(sortModel = Product.class) ProductSearchRequest request);
 
     @Operation(summary = "Get product by id")
     @GetMapping("/{id}")

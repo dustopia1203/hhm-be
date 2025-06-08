@@ -6,6 +6,7 @@ import com.hhm.api.repository.custom.ReviewRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface ReviewRepository extends JpaRepository<Review, UUID>, ReviewRepositoryCustom {
@@ -14,4 +15,7 @@ public interface ReviewRepository extends JpaRepository<Review, UUID>, ReviewRep
 
     @Query("SELECT COUNT(r) as reviewCount, AVG(r.rating) as avgRating FROM Review r WHERE r.deleted = FALSE AND r.productId = :productId")
     ReviewStat findStatByProduct(UUID productId);
+
+    @Query("SELECT r.productId, COUNT(r) as reviewCount, AVG(r.rating) as avgRating FROM Review r WHERE r.deleted = FALSE AND r.productId IN :productIds")
+    List<Object[]> findStatByProducts(List<UUID> productIds);
 }

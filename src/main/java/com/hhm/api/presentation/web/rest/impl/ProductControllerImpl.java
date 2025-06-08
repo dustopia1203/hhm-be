@@ -20,7 +20,7 @@ public class ProductControllerImpl implements ProductController {
     private final ProductService productService;
 
     @Override
-    public PagingResponse<Product> search(ProductSearchRequest request) {
+    public PagingResponse<ProductResponse> search(ProductSearchRequest request) {
         return PagingResponse.of(productService.search(request));
     }
 

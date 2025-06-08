@@ -10,7 +10,7 @@ import com.hhm.api.model.entity.Product;
 import java.util.UUID;
 
 public interface ProductService {
-    PageDTO<Product> search(ProductSearchRequest request);
+    PageDTO<ProductResponse> search(ProductSearchRequest request);
 
     ProductResponse getById(UUID id);
 

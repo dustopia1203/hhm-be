@@ -34,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,7 +53,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRecommendationService productRecommendationService;
 
     @Override
-    public PageDTO<Product> search(ProductSearchRequest request) {
+    public PageDTO<ProductResponse> search(ProductSearchRequest request) {
         // Lưu lịch sử tìm kiếm nếu có userid
         if (request.getKeyword() != null && !request.getKeyword().trim().isEmpty()) {
             try {
@@ -78,7 +79,30 @@ public class ProductServiceImpl implements ProductService {
 
         List<Product> products = productRepository.search(request);
 
-        return PageDTO.of(products, request.getPageIndex(), request.getPageSize(), count);
+        List<UUID> productIds = products.stream()
+                .map(Product::getId)
+                .toList();
+
+        List<Object[]> reviewStats = reviewRepository.findStatByProducts(productIds);
+
+        List<ProductResponse> responses = new ArrayList<>();
+
+        products.forEach(product -> {
+            ProductResponse response = autoMapper.toResponse(product);
+
+            Optional<Object[]> optionalObjects = reviewStats.stream()
+                    .filter(item -> Objects.equals(item[0], product.getId()))
+                    .findFirst();
+
+            optionalObjects.ifPresent(item -> {
+                response.setReviewCount(((Number)item[1]).longValue());
+                response.setRating(((Number)item[2]).floatValue());
+            });
+
+            responses.add(response);
+        });
+
+        return PageDTO.of(responses, request.getPageIndex(), request.getPageSize(), count);
     }
 
     @Override
