@@ -41,7 +41,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user = userRepository.findActiveById(id)
                 .orElseThrow(() -> new ResponseException(NotFoundError.USER_NOT_FOUND));
 
-        List<UserRole> userRoles = userRoleRepository.findByUserId(id);
+        List<UserRole> userRoles = userRoleRepository.findByUser(id);
 
         List<UUID> roleIds = userRoles.stream()
                 .map(UserRole::getRoleId)

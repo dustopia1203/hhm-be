@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
 
         UserInformation userInformation = userInformationRepository.findById(user.getId()).orElse(null);
 
-        List<UserRole> userRoles = userRoleRepository.findByUserId(user.getId());
+        List<UserRole> userRoles = userRoleRepository.findByUser(user.getId());
 
         return UserDetailResponse.builder()
                 .username(user.getUsername())
@@ -210,6 +210,40 @@ public class UserServiceImpl implements UserService {
         });
 
         userRepository.saveAll(users);
+    }
+
+    @Override
+    public List<Role> getUserRoles(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseException(NotFoundError.USER_NOT_FOUND));
+
+        List<UserRole> userRoles = userRoleRepository.findByUser(user.getId());
+
+        if (userRoles.isEmpty()) return List.of();
+
+        List<UUID> roleIds = userRoles.stream()
+                .map(UserRole::getRoleId)
+                .toList();
+
+        return roleRepository.findActiveByIds(roleIds);
+    }
+
+    @Override
+    public void setUserRole(UUID id, UUID roleId) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseException(NotFoundError.USER_NOT_FOUND));
+
+        Role role = roleRepository.findActiveById(roleId)
+                .orElseThrow(() -> new ResponseException(NotFoundError.ROLE_NOT_FOUND));
+
+        UserRole userRole = UserRole.builder()
+                .id(IdUtils.nextId())
+                .userId(user.getId())
+                .roleId(role.getId())
+                .deleted(Boolean.FALSE)
+                .build();
+
+        userRoleRepository.save(userRole);
     }
 
 }
