@@ -91,15 +91,15 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
         }
 
         if (Objects.nonNull(request.getStartDate())) {
-            criteriaQuery.append("AND t.createdDate >= :startDate ");
+            criteriaQuery.append("AND t.createdAt >= :startDate ");
 
             values.put("startDate", request.getStartDate());
         }
 
         if (Objects.nonNull(request.getEndDate())) {
-            criteriaQuery.append("AND t.createdDate <= :endDate ");
+            criteriaQuery.append("AND t.createdAt <= :endDate ");
 
-            values.put("endDate", request.getStartDate());
+            values.put("endDate", request.getEndDate());
         }
 
         return criteriaQuery.toString();
