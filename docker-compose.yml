@@ -33,6 +33,48 @@ services:
       - "1080:1080"
       - "1025:1025"
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.1
+    container_name: hhm-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    networks:
+      - db
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.1
+    container_name: hhm-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - db
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.12.1
+    container_name: hhm-logstash
+    depends_on:
+      - db
+      - elasticsearch
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./postgresql-42.7.5.jar:/usr/share/logstash/postgresql-42.7.5.jar
+    networks:
+      - db
+
+volumes:
+  elasticsearch-data:
+    driver: local
+
 networks:
   db:
     driver: bridge

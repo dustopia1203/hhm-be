@@ -7,11 +7,13 @@ import com.hhm.api.model.dto.response.ProductResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.dto.response.ReviewResponse;
 import com.hhm.api.model.dto.response.ShopDetailResponse;
+import com.hhm.api.model.dto.response.TransactionResponse;
 import com.hhm.api.model.entity.CartItem;
 import com.hhm.api.model.entity.OrderItem;
 import com.hhm.api.model.entity.Product;
 import com.hhm.api.model.entity.Review;
 import com.hhm.api.model.entity.Shop;
+import com.hhm.api.model.entity.Transaction;
 import com.hhm.api.model.entity.UserInformation;
 import org.mapstruct.Mapper;
 
@@ -28,4 +30,6 @@ public interface AutoMapper {
     OrderItemResponse toResponse(OrderItem orderItem);
 
     ReviewResponse toResponse(Review review);
+
+    TransactionResponse toResponse(Transaction transaction);
 }

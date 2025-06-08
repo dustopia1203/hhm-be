@@ -55,7 +55,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
         criteriaQuery.append("AND u.deleted = FALSE ");
 
         if (Objects.nonNull(request.getKeyword())) {
-            criteriaQuery.append("AND (u.username LIKE :keyword OR u.email LIKE :keyword OR u.phone LIKE :keyword) ");
+            criteriaQuery.append("AND (u.username LIKE :keyword OR u.email LIKE :keyword) ");
 
             values.put("keyword", QueryUtils.encodeLikeString(request.getKeyword()));
         }

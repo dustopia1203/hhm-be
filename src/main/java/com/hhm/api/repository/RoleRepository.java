@@ -9,6 +9,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface RoleRepository extends JpaRepository<Role, UUID> {
+    @Query("SELECT r FROM Role r WHERE r.deleted = FALSE AND r.status = 'ACTIVE' AND r.id = :id")
+    Optional<Role> findActiveById(UUID id);
+
     @Query("SELECT r FROM Role r WHERE r.deleted = FALSE AND r.code = :code")
     Optional<Role> findByCode(String code);
 
@@ -17,4 +20,7 @@ public interface RoleRepository extends JpaRepository<Role, UUID> {
 
     @Query("SELECT r FROM Role r WHERE r.deleted = FALSE AND r.status = 'ACTIVE' AND r.id IN :ids")
     List<Role> findActiveByIds(List<UUID> ids);
+
+    @Query("SELECT r FROM Role r WHERE r.deleted = FALSE AND r.status = 'ACTIVE'")
+    List<Role> findAllActive();
 }

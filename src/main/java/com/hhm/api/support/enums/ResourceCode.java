@@ -12,6 +12,7 @@ public enum ResourceCode {
     SHIPPING,
     SHOP,
     PRODUCT,
+    TRANSACTION,
     USER,
     ;
 }

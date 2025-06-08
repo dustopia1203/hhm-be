@@ -10,6 +10,7 @@ import com.hhm.api.model.dto.request.AuthenticateRequest;
 import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
+import com.hhm.api.model.dto.request.UserInformationUpdateRequest;
 import com.hhm.api.model.dto.response.AccountBalanceResponse;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
@@ -280,7 +281,7 @@ public class AccountServiceImpl implements AccountService {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
 
         UserAuthority userAuthority = authenticationService.getUserAuthority(currentUserId);
-        UserInformation userInformation = userInformationRepository.findById(currentUserId).orElse(null);
+        UserInformation userInformation = userInformationRepository.findByUserId(currentUserId).orElse(null);
 
         return autoMapper.toResponse(userAuthority, userInformation);
     }
@@ -408,5 +409,58 @@ public class AccountServiceImpl implements AccountService {
         return AccountBalanceResponse.builder()
                 .balance(balance)
                 .build();
+    }
+
+    @Override
+    public void updateProfile(UserInformationUpdateRequest request) {
+        UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+        Optional<UserInformation> optionalUserInformation = userInformationRepository.findByUserId(currentUserId);
+
+        Date date = request.getDateOfBirth();
+
+        Instant instant = date.toInstant();
+
+        if(optionalUserInformation.isEmpty()) {
+            UserInformation userInformation = UserInformation.builder()
+                    .userId(currentUserId)
+                    .phone(request.getPhone())
+                    .gender(request.getGender())
+                    .dateOfBirth(instant)
+                    .deleted(Boolean.FALSE)
+                    .id(IdUtils.nextId())
+                    .address(request.getAddress())
+                    .avatarUrl(request.getAvatarUrl())
+                    .middleName(request.getMiddleName())
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .build();
+            userInformationRepository.save(userInformation);
+
+        }
+
+        UserInformation userInformation = optionalUserInformation.get();
+
+        Optional.ofNullable(request.getAddress()).ifPresent(userInformation::setAddress);
+
+        Optional.ofNullable(request.getFirstName()).ifPresent(userInformation::setFirstName);
+
+        Optional.ofNullable(request.getMiddleName()).ifPresent(userInformation::setMiddleName);
+
+        Optional.ofNullable(request.getLastName()).ifPresent(userInformation::setLastName);
+
+        Optional.ofNullable(request.getGender()).ifPresent(userInformation::setGender);
+
+        Optional.ofNullable(request.getAvatarUrl()).ifPresent(userInformation::setAvatarUrl);
+
+        Optional.ofNullable(request.getPhone()).ifPresent(userInformation::setPhone);
+
+        if (request.getDateOfBirth() != null) {
+            userInformation.setDateOfBirth(instant);
+        }
+
+
+        userInformationRepository.save(userInformation);
+
     }
 }

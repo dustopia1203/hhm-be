@@ -229,6 +229,8 @@ public class OrderServiceImpl implements OrderService {
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getAmount())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+        totalAmount = totalAmount.add(shipping.getPrice().multiply(BigDecimal.valueOf(request.getOrderItemCreateRequests().size())));
+
         Transaction transaction = Transaction.builder()
                 .id(IdUtils.nextId())
                 .userId(userId)

@@ -20,8 +20,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class RoleServiceImpl implements RoleService {
-
-
     private final RoleRepository roleRepository;
     private final RolePrivilegeRepository rolePrivilegeRepository;
 
@@ -70,5 +68,10 @@ public class RoleServiceImpl implements RoleService {
 
         roleRepository.saveAll(roles);
         rolePrivilegeRepository.saveAll(rolePrivileges);
+    }
+
+    @Override
+    public List<Role> getAvailableRoles() {
+        return roleRepository.findAllActive();
     }
 }
