@@ -90,6 +90,18 @@ public class TransactionRepositoryImpl implements TransactionRepositoryCustom {
             values.put("transactionTypes", request.getTransactionTypes());
         }
 
+        if (Objects.nonNull(request.getStartDate())) {
+            criteriaQuery.append("AND t.createdDate >= :startDate ");
+
+            values.put("startDate", request.getStartDate());
+        }
+
+        if (Objects.nonNull(request.getEndDate())) {
+            criteriaQuery.append("AND t.createdDate <= :endDate ");
+
+            values.put("endDate", request.getStartDate());
+        }
+
         return criteriaQuery.toString();
     }
 }

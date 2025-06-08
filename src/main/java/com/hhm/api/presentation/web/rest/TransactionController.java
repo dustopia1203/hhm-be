@@ -19,5 +19,5 @@ public interface TransactionController {
     @Operation(summary = "Search transactions")
     @GetMapping("/q")
     @PreAuthorize("hasPermission(null, 'TRANSACTION:READ')")
-    PagingResponse<TransactionResponse> search(@ValidatePaging(sortModel = Transaction.class)TransactionSearchRequest request);
+    PagingResponse<TransactionResponse> search(@ValidatePaging(sortModel = Transaction.class) TransactionSearchRequest request);
 }

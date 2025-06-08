@@ -6,6 +6,7 @@ import com.hhm.api.support.enums.TransactionType;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,4 +18,6 @@ public class TransactionSearchRequest extends PagingRequest {
     private List<PaymentMethod> paymentMethods;
     private List<TransactionStatus> transactionStatuses;
     private List<TransactionType> transactionTypes;
+    private Instant startDate;
+    private Instant endDate;
 }
