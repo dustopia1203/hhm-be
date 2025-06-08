@@ -257,7 +257,7 @@ public class AccountServiceImpl implements AccountService {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
 
         UserAuthority userAuthority = authenticationService.getUserAuthority(currentUserId);
-        UserInformation userInformation = userInformationRepository.findById(currentUserId).orElse(null);
+        UserInformation userInformation = userInformationRepository.findByUserId(currentUserId).orElse(null);
 
         return autoMapper.toResponse(userAuthority, userInformation);
     }
