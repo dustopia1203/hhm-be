@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -20,4 +21,5 @@ public class TransactionResponse {
     private TransactionStatus transactionStatus;
     private TransactionType transactionType;
     private String referenceContext;
+    private Instant createdAt;
 }
