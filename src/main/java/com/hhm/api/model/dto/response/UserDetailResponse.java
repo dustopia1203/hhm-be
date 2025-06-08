@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.SuperBuilder;
 
 
+import java.time.Instant;
 import java.util.List;
 
 @EqualsAndHashCode(callSuper = false)
@@ -19,4 +20,6 @@ public class UserDetailResponse extends ProfileResponse {
     private ActiveStatus status;
     private AccountType accountType;
     private List<UserRole> userRoles;
+    private Instant createdAt;
+    private Instant lastModifiedAt;
 }

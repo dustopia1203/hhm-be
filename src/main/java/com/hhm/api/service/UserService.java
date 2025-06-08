@@ -4,8 +4,10 @@ import com.hhm.api.model.dto.PageDTO;
 import com.hhm.api.model.dto.request.IdsRequest;
 import com.hhm.api.model.dto.request.UserSearchRequest;
 import com.hhm.api.model.dto.response.UserDetailResponse;
+import com.hhm.api.model.entity.Role;
 import com.hhm.api.model.entity.User;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
@@ -20,4 +22,8 @@ public interface UserService {
     void inactive(IdsRequest request);
 
     void delete(IdsRequest request);
+
+    List<Role> getUserRoles(UUID id);
+
+    void setUserRole(UUID id, IdsRequest request);
 }

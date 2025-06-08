@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
 
         UserInformation userInformation = userInformationRepository.findById(user.getId()).orElse(null);
 
-        List<UserRole> userRoles = userRoleRepository.findByUserId(user.getId());
+        List<UserRole> userRoles = userRoleRepository.findByUser(user.getId());
 
         return UserDetailResponse.builder()
                 .username(user.getUsername())
@@ -125,6 +125,8 @@ public class UserServiceImpl implements UserService {
                 .status(user.getStatus())
                 .accountType(user.getAccountType())
                 .userRoles(userRoles)
+                .createdAt(user.getCreatedAt())
+                .lastModifiedAt(user.getLastModifiedAt())
                 .build();
     }
 
@@ -210,6 +212,63 @@ public class UserServiceImpl implements UserService {
         });
 
         userRepository.saveAll(users);
+    }
+
+    @Override
+    public List<Role> getUserRoles(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseException(NotFoundError.USER_NOT_FOUND));
+
+        List<UserRole> userRoles = userRoleRepository.findByUser(user.getId());
+
+        if (userRoles.isEmpty()) return List.of();
+
+        List<UUID> roleIds = userRoles.stream()
+                .map(UserRole::getRoleId)
+                .toList();
+
+        return roleRepository.findActiveByIds(roleIds);
+    }
+
+    @Override
+    public void setUserRole(UUID id, IdsRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseException(NotFoundError.USER_NOT_FOUND));
+
+        List<Role> role = roleRepository.findActiveByIds(request.getIds());
+
+        List<UUID> roleIds = role.stream()
+                .map(Role::getId)
+                .toList();
+
+        List<UserRole> existedUserRoles = userRoleRepository.findByUser(user.getId());
+
+        List<UserRole> updatedUserRoles = new ArrayList<>(existedUserRoles.stream()
+                .peek(userRole -> userRole.setDeleted(Boolean.TRUE))
+                .toList());
+
+        roleIds.forEach(roleId -> {
+            Optional<UserRole> userRoleOptional = updatedUserRoles.stream()
+                    .filter(userRole -> Objects.equals(userRole.getRoleId(), roleId))
+                    .findFirst();
+
+            if (userRoleOptional.isEmpty()) {
+                UserRole userRole = UserRole.builder()
+                        .id(IdUtils.nextId())
+                        .userId(user.getId())
+                        .roleId(roleId)
+                        .deleted(Boolean.FALSE)
+                        .build();
+
+                updatedUserRoles.add(userRole);
+            } else {
+                UserRole userRole = userRoleOptional.get();
+
+                userRole.setDeleted(Boolean.FALSE);
+            }
+        });
+
+        userRoleRepository.saveAll(updatedUserRoles);
     }
 
 }
