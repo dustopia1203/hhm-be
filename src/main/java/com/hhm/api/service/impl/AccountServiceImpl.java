@@ -10,7 +10,11 @@ import com.hhm.api.model.dto.request.AuthenticateRequest;
 import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
+
+import com.hhm.api.model.dto.request.ResetPasswordRequest;
+
 import com.hhm.api.model.dto.request.UserInformationUpdateRequest;
+
 import com.hhm.api.model.dto.response.AccountBalanceResponse;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
@@ -41,11 +45,15 @@ import com.hhm.api.support.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+
+import org.springframework.cache.support.SimpleValueWrapper;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -287,6 +295,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public void forgotPassword(ResendActivationCodeRequest request) {
+        User user = userRepository.findByCredential(request.getCredential()).orElseThrow(
+                () -> new ResponseException(NotFoundError.USER_NOT_FOUND));
+  
+        String resetOtp = RandomStringUtils.randomNumeric(6);
+
+        emailService.sendActivationAccountEmail(user.getEmail(), user.getId(), user.getUsername(), resetOtp);
+
+        cacheService.put(Constants.CacheName.USER_RESET_OTP_CACHE_NAME, user.getUsername(), resetOtp);
+}
+   @Override
     public AuthenticateResponse loginGoogle(String code) throws IOException {
 
         HttpHeaders headers = new HttpHeaders();
@@ -400,15 +419,70 @@ public class AccountServiceImpl implements AccountService {
                 .build();
     }
 
+
     @Override
-    public AccountBalanceResponse getAccountBalance() {
-        UUID currentUserId = SecurityUtils.getCurrentUserId();
+    public void verifyResetOtp(ActiveAccountRequest request) {
+        User user = userRepository.findByCredential(request.getCredential()).orElseThrow(
+                () -> new ResponseException(NotFoundError.USER_NOT_FOUND));
 
-        BigDecimal balance = transactionRepository.findUserBalance(currentUserId);
+        String username = user.getUsername();
 
-        return AccountBalanceResponse.builder()
-                .balance(balance)
-                .build();
+        Object cachedValue = cacheService.get(Constants.CacheName.USER_RESET_OTP_CACHE_NAME, username);
+
+        String cachedOtp = (cachedValue instanceof SimpleValueWrapper) ? (String) ((SimpleValueWrapper) cachedValue).get() : (String) cachedValue;
+
+        if (cachedOtp == null || !cachedOtp.equals(request.getActivationCode())) {
+            throw new ResponseException(BadRequestError.INVALID_OTP);
+        }
+
+        cacheService.put(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username, "true");
+
+        cacheService.evict(Constants.CacheName.USER_RESET_OTP_CACHE_NAME, username);
+    }
+
+    @Override
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByCredential(request.getCredential()).orElseThrow(
+                () -> new ResponseException(NotFoundError.USER_NOT_FOUND));
+
+        String username = user.getUsername();
+
+        if (request.getCurrentPassword() != null && !request.getCurrentPassword().isEmpty()) {
+            try {
+                Authentication authentication = new CustomUserAuthentication(username, request.getCurrentPassword());
+                authenticationManager.authenticate(authentication);
+
+                // Nếu verify thành công, set flag verified
+                cacheService.put(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username, "true");
+            } catch (Exception e) {
+                throw new ResponseException(BadRequestError.INVALID_PASSWORD);
+            }
+        } else {
+            // Nếu không có currentPassword thì check OTP
+            Object verified = cacheService.get(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username);
+            String isVerified = (verified instanceof SimpleValueWrapper) ? (String) ((SimpleValueWrapper) verified).get() : (String) verified;
+
+            if (isVerified == null || !"true".equals(isVerified)) {
+                throw new ResponseException(BadRequestError.OTP_NOT_VERIFIED);
+            }
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        userRepository.save(user);
+
+        cacheService.evict(Constants.CacheName.USER_RESET_VERIFIED_CACHE_NAME, username);
+    }
+
+@Override
+public AccountBalanceResponse getAccountBalance() {
+    UUID currentUserId = SecurityUtils.getCurrentUserId();
+
+    BigDecimal balance = transactionRepository.findUserBalance(currentUserId);
+
+    return AccountBalanceResponse.builder()
+            .balance(balance)
+            .build();
     }
 
     @Override

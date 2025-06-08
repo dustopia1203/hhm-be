@@ -22,6 +22,9 @@ public enum BadRequestError implements ResponseError {
     SHIPPING_WAS_ACTIVATED(400014, "Shipping was activated"),
     SHIPPING_WAS_INACTIVATED(400014, "Shipping was inactivated"),
     ORDER_ITEM_ACTION_INVALID(400015, "Order item action invalid"),
+    INVALID_OTP(400016, "Invalid OTP"),
+    OTP_NOT_VERIFIED(400017, "Otp not verified"),
+    INVALID_PASSWORD(400018, "Invalid password"),
     ;
 
     private final int code;

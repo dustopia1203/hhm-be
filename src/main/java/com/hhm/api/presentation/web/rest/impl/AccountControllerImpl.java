@@ -5,8 +5,15 @@ import com.hhm.api.model.dto.request.AuthenticateRequest;
 import com.hhm.api.model.dto.request.RefreshTokenRequest;
 import com.hhm.api.model.dto.request.RegisterRequest;
 import com.hhm.api.model.dto.request.ResendActivationCodeRequest;
+
+
+import com.hhm.api.model.dto.request.ResetPasswordRequest;
+
+
 import com.hhm.api.model.dto.request.UserInformationUpdateRequest;
+
 import com.hhm.api.model.dto.response.AccountBalanceResponse;
+
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.dto.response.Response;
@@ -64,6 +71,24 @@ public class AccountControllerImpl implements AccountController {
     }
 
     @Override
+    public Response<Boolean> forgotPassword(ResendActivationCodeRequest request) {
+        accountService.forgotPassword(request);
+        return Response.ok();
+    }
+
+    @Override
+    public Response<Boolean> verifyOTP(ActiveAccountRequest request) {
+        accountService.verifyResetOtp(request);
+        return Response.ok();
+    }
+
+    @Override
+    public Response<Boolean> resetPassword(ResetPasswordRequest request) {
+        accountService.resetPassword(request);
+        return Response.ok();
+    }
+
+     @Override
     public Response<AuthenticateResponse> loginGoogle(String code) throws IOException {
         return Response.of(accountService.loginGoogle(code));
     }
