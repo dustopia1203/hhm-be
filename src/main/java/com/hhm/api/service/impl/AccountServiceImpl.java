@@ -277,31 +277,50 @@ public class AccountServiceImpl implements AccountService {
     public void updateProfile(UserInformationUpdateRequest request) {
         UUID currentUserId = SecurityUtils.getCurrentUserId();
 
-        UserAuthority userAuthority = authenticationService.getUserAuthority(currentUserId);
+        Optional<UserInformation> optionalUserInformation = userInformationRepository.findByUserId(currentUserId);
 
-        UserInformation userInformation = userInformationRepository.findByUserId(currentUserId).orElse(null);
+        Date date = request.getDateOfBirth();
 
-        if(userInformation.getAddress()!= null)userInformation.setAddress(request.getAddress());
+        Instant instant = date.toInstant();
 
-        if(userInformation.getFirstName()!=null)userInformation.setFirstName(request.getFirstName());
+        if(optionalUserInformation.isEmpty()) {
+            UserInformation userInformation = UserInformation.builder()
+                    .userId(currentUserId)
+                    .phone(request.getPhone())
+                    .gender(request.getGender())
+                    .dateOfBirth(instant)
+                    .deleted(Boolean.FALSE)
+                    .id(IdUtils.nextId())
+                    .address(request.getAddress())
+                    .avatarUrl(request.getAvatarUrl())
+                    .middleName(request.getMiddleName())
+                    .firstName(request.getFirstName())
+                    .lastName(request.getLastName())
+                    .build();
+            userInformationRepository.save(userInformation);
 
-        if(userInformation.getMiddleName()!=null)userInformation.setMiddleName(request.getMiddleName());
+        }
 
-        if(userInformation.getLastName()!=null)userInformation.setLastName(request.getLastName());
+        UserInformation userInformation = optionalUserInformation.get();
 
-        if(userInformation.getGender()!=null)userInformation.setGender(request.getGender());
+        Optional.ofNullable(request.getAddress()).ifPresent(userInformation::setAddress);
 
-        if(userInformation.getAvatarUrl()!=null)userInformation.setAvatarUrl(request.getAvatarUrl());
+        Optional.ofNullable(request.getFirstName()).ifPresent(userInformation::setFirstName);
 
-        if(userInformation.getDateOfBirth()!=null){
-            Date date = request.getDateOfBirth();
+        Optional.ofNullable(request.getMiddleName()).ifPresent(userInformation::setMiddleName);
 
-            Instant instant = date.toInstant();
+        Optional.ofNullable(request.getLastName()).ifPresent(userInformation::setLastName);
 
+        Optional.ofNullable(request.getGender()).ifPresent(userInformation::setGender);
+
+        Optional.ofNullable(request.getAvatarUrl()).ifPresent(userInformation::setAvatarUrl);
+
+        Optional.ofNullable(request.getPhone()).ifPresent(userInformation::setPhone);
+
+        if (request.getDateOfBirth() != null) {
             userInformation.setDateOfBirth(instant);
         }
 
-        if(userInformation.getPhone()!=null)userInformation.setPhone(request.getPhone());
 
         userInformationRepository.save(userInformation);
 
