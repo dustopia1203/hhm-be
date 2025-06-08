@@ -14,6 +14,10 @@ public interface UserInformationRepository extends JpaRepository<UserInformation
     @NonNull
     Optional<UserInformation> findById(@NonNull UUID id);
 
+    @Query("SELECT ui FROM UserInformation ui WHERE ui.deleted = FALSE AND ui.userId = :userId")
+    @NonNull
+    Optional<UserInformation> findByUserId(@NonNull UUID userId);
+
     @Query("SELECT ui FROM UserInformation ui WHERE ui.deleted = FALSE AND ui.id in :ids")
     List<UserInformation> findByIds(List<UUID> ids);
 
@@ -22,4 +26,5 @@ public interface UserInformationRepository extends JpaRepository<UserInformation
 
     @Query("SELECT ui FROM UserInformation ui WHERE ui.deleted = FALSE AND ui.userId = :userId")
     Optional<UserInformation> findByUserId(UUID userId);
+
 }

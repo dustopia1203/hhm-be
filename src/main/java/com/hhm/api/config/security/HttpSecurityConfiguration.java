@@ -50,6 +50,7 @@ public class HttpSecurityConfiguration {
             "/api/account/active",
             "/api/account/{id}/active",
             "/api/account/authenticate",
+            "/api/account/authenticate/callback",
             "/api/account/refresh-token",
             "/api/account/reset-password",
     };

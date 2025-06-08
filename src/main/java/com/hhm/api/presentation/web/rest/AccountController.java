@@ -10,6 +10,7 @@ import com.hhm.api.model.dto.response.AccountBalanceResponse;
 import com.hhm.api.model.dto.response.AuthenticateResponse;
 import com.hhm.api.model.dto.response.ProfileResponse;
 import com.hhm.api.model.dto.response.Response;
+import com.hhm.api.model.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Tag(name = "Account Resources")
@@ -53,6 +56,10 @@ public interface AccountController {
     @GetMapping("/profile")
     Response<ProfileResponse> getAccountProfile();
 
+    @Operation(summary = "Login Google")
+    @GetMapping(value = "/authenticate/callback")
+    Response<AuthenticateResponse> loginGoogle(@RequestParam("code") String code) throws IOException;
+
     @Operation(summary = "Get account balance")
     @GetMapping("/balance")
     Response<AccountBalanceResponse> getAccountBalance();
@@ -60,4 +67,5 @@ public interface AccountController {
     @Operation(summary = "Update profile")
     @PutMapping("/update")
     Response<Boolean> updateProfile(@RequestBody UserInformationUpdateRequest request);
+
 }

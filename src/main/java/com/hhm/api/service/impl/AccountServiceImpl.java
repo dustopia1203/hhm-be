@@ -41,18 +41,28 @@ import com.hhm.api.support.util.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -74,6 +84,20 @@ public class AccountServiceImpl implements AccountService {
     private final AutoMapper autoMapper;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
+
+    private final RestTemplate restTemplate;
+
+    @Value("${google.client-id}")
+    private String clientId;
+    @Value("${google.client-secret}")
+    private String clientSecret;
+    @Value("${google.redirect-url}")
+    private String redirectUrl;
+    @Value("${google.token-url}")
+    private String tokenUrl;
+    @Value("${google.user-info-url}")
+    private String userInforUrl;
+
     private final TransactionRepository transactionRepository;
 
     @Override
@@ -260,6 +284,120 @@ public class AccountServiceImpl implements AccountService {
         UserInformation userInformation = userInformationRepository.findByUserId(currentUserId).orElse(null);
 
         return autoMapper.toResponse(userAuthority, userInformation);
+    }
+
+    @Override
+    public AuthenticateResponse loginGoogle(String code) throws IOException {
+
+        HttpHeaders headers = new HttpHeaders();
+
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        params.add("code", code);
+        params.add("client_id", clientId);
+        params.add("client_secret", clientSecret);
+        params.add("redirect_uri", redirectUrl);
+        params.add("grant_type", "authorization_code");
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        Map<String, Object> tokenData = restTemplate.exchange(
+                tokenUrl, HttpMethod.POST, request, Map.class
+        ).getBody();
+
+        String accessToken = (String) tokenData.get("access_token");
+
+        HttpHeaders headers1 = new HttpHeaders();
+
+        headers1.setBearerAuth(accessToken);
+
+        HttpEntity<String> entity = new HttpEntity<>(headers1);
+
+        Map<String, Object> userInformationData = restTemplate.exchange(
+                userInforUrl, HttpMethod.GET, entity, Map.class
+        ).getBody();
+
+        Optional<User> existingUser = userRepository.findByEmail(userInformationData.get("email").toString());
+
+        User user;
+
+        if (existingUser.isPresent()) {
+            user = existingUser.get();
+            user.setUsername(userInformationData.get("name").toString());
+        } else {
+            user = User.builder()
+                    .id(IdUtils.nextId())
+                    .status(ActiveStatus.ACTIVE)
+                    .email(userInformationData.get("email").toString())
+                    .username(userInformationData.get("name").toString())
+                    .accountType(AccountType.GOOGLE)
+                    .deleted(Boolean.FALSE)
+                    .password("google-auth-" + UUID.randomUUID())
+                    .build();
+
+            userRepository.save(user);
+        }
+        Optional<UserInformation> optionalUserInformation = userInformationRepository.findByUserId(user.getId());
+
+        UserInformation userInformation;
+
+        userInformation = optionalUserInformation.orElseGet(
+                () -> UserInformation.builder()
+                        .id(IdUtils.nextId())
+                        .lastName(userInformationData.get("given_name").toString())
+                        .firstName(null)
+                        .middleName(null)
+                        .address(null)
+                        .avatarUrl(userInformationData.get("picture").toString())
+                        .dateOfBirth(null)
+                        .deleted(Boolean.FALSE)
+                        .phone(null)
+                        .gender(null)
+                        .userId(user.getId())
+                        .build());
+
+        userInformationRepository.save(userInformation);
+
+        Role memberRole = roleRepository.findByCode(Constants.DefaultRole.MEMBER.name()).orElse(null);
+
+        if (memberRole != null) {
+            Optional<UserRole> optionalUserRole = userRoleRepository.findByUserIdAndRoleId(user.getId(), memberRole.getId());
+
+            if (optionalUserRole.isEmpty()) {
+                UserRole userRole = UserRole.builder()
+                        .id(IdUtils.nextId())
+                        .userId(user.getId())
+                        .roleId(memberRole.getId())
+                        .deleted(false)
+                        .build();
+
+                userRoleRepository.save(userRole);
+            }
+        }
+
+        // Create authentication for JWT token
+        Authentication authentication = new UsernamePasswordAuthenticationToken(user.getUsername(), "", new ArrayList<>());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        // Generate JWT tokens
+        String jwtAccessToken = tokenProvider.buildToken(authentication, user.getId(), TokenType.ACCESS_TOKEN);
+        Duration accessTokenExpiresIn = authenticationProperties.getAccessTokenExpiresIn();
+        Instant accessTokenExpiresAt = Instant.now().plus(accessTokenExpiresIn);
+
+        String jwtRefreshToken = tokenProvider.buildToken(authentication, user.getId(), TokenType.REFRESH_TOKEN);
+        Duration refreshTokenExpiresIn = authenticationProperties.getRefreshTokenExpiresIn();
+        Instant refreshTokenExpiresAt = Instant.now().plus(refreshTokenExpiresIn);
+
+        return AuthenticateResponse.builder()
+                .accessToken(jwtAccessToken)
+                .accessTokenExpiresIn(accessTokenExpiresIn.toSeconds())
+                .accessTokenExpiredAt(accessTokenExpiresAt)
+                .refreshToken(jwtRefreshToken)
+                .refreshTokenExpiresIn(refreshTokenExpiresIn.toSeconds())
+                .refreshTokenExpiredAt(refreshTokenExpiresAt)
+                .build();
     }
 
     @Override
