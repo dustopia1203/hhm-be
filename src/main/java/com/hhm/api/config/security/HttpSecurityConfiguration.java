@@ -41,6 +41,7 @@ public class HttpSecurityConfiguration {
             "/api/shops/{id}",
             "/api/products/**",
             "/api/reviews/**",
+            "/api/v1/products/**",
     };
 
     private final String[] COMMAND_PUBLIC_URLS = {
