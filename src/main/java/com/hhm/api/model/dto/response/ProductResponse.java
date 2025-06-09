@@ -17,6 +17,7 @@ public class ProductResponse {
     private UUID categoryId;
     private String name;
     private String description;
+    private String contentUrls;
     private List<String> images;
     private BigDecimal price;
     private BigDecimal salePrice;

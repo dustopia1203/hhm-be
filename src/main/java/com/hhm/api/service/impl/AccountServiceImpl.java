@@ -317,7 +317,7 @@ public class AccountServiceImpl implements AccountService {
         params.add("code", code);
         params.add("client_id", clientId);
         params.add("client_secret", clientSecret);
-        params.add("redirect_uri", redirectUrl);
+        params.add("redirect_uri", "postmessage");
         params.add("grant_type", "authorization_code");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);

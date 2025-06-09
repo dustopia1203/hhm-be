@@ -16,6 +16,6 @@ public interface ReviewRepository extends JpaRepository<Review, UUID>, ReviewRep
     @Query("SELECT COUNT(r) as reviewCount, AVG(r.rating) as avgRating FROM Review r WHERE r.deleted = FALSE AND r.productId = :productId")
     ReviewStat findStatByProduct(UUID productId);
 
-    @Query("SELECT r.productId, COUNT(r) as reviewCount, AVG(r.rating) as avgRating FROM Review r WHERE r.deleted = FALSE AND r.productId IN :productIds")
+    @Query("SELECT r.productId, COUNT(r) as reviewCount, AVG(r.rating) as avgRating FROM Review r WHERE r.deleted = FALSE AND r.productId IN :productIds GROUP BY r.productId")
     List<Object[]> findStatByProducts(List<UUID> productIds);
 }
